@@ -1,0 +1,6 @@
+{
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "window.title": "rpi-garage-door ${dirty}${activeEditorShort}${separator}${rootName}${separator}${appName}"
+}

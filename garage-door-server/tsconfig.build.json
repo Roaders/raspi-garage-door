@@ -1,4 +1,13 @@
 {
-  "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "outDir": "../dist/garage-door-server"
+    },
+    "exclude": [
+        "../node_modules",
+        "test",
+        "dist",
+        "../dist",
+        "**/*spec.ts"
+    ]
 }

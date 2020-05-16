@@ -6,7 +6,7 @@
     "scripts": {
         "clean": "rimraf dist",
         "build": "tsc",
-        "lint": "eslint '*/**/*.ts'",
+        "lint": "eslint \"*/**/*.ts\"",
         "build:watch": "tsc --watch",
         "test": "echo \"Error: no test specified\" && exit 1"
     },

@@ -1,9 +1,5 @@
-
-
-export class GarageDoorService{
-
-    public async getState(){
-
+export class GarageDoorService {
+    public async getState() {
+        return 'unknown';
     }
-
 }

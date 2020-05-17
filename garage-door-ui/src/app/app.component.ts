@@ -9,7 +9,7 @@ import { HttpClient } from '@angular/common/http';
 export class AppComponent {
     constructor(private html: HttpClient) {}
 
-    private _time: string;
+    private _time: string | undefined;
 
     public get time(): string {
         return this._time == null ? 'Not Loaded' : this._time;

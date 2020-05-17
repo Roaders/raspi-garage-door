@@ -1,7 +1,9 @@
 {
+    "extends": "../tsconfig.json",
     "compileOnSave": false,
     "compilerOptions": {
         "baseUrl": "./",
+        "rootDir": "../",
         "outDir": "./dist/out-tsc",
         "sourceMap": true,
         "declaration": false,

@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { AuthModule } from './auth';
+import { UsersModule } from './users/users.module';
 import * as chalk from 'chalk';
 
 const rootPath = join(__dirname, '../../', 'garage-door-ui');
@@ -20,7 +22,7 @@ if (existsSync(rootPath)) {
 }
 
 @Module({
-    imports,
+    imports: [...imports, AuthModule, UsersModule],
     controllers: [AppController],
     providers: [AppService],
 })

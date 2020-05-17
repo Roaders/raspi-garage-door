@@ -3,3 +3,26 @@
 </div>
 
 <button type="button" (click)="loadTime()">Update Time</button>
+
+<div>
+    <span>Error: {{error}}</span>
+</div>
+
+<div>
+    <span>Token: {{token}}</span>
+</div>
+
+<div>
+    <div>Login:</div>
+    <div>
+        <span>Username:</span>
+        <input [(ngModel)]="username" type="text">
+    </div>
+    <div>
+        <span>Password:</span>
+        <input [(ngModel)]="password" type="password">
+    </div>
+    <div>
+        <button type="button" (click)="login()">Login</button>
+    </div>
+</div>

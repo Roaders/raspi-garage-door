@@ -4,8 +4,6 @@ import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { IServerConfig } from '../../shared';
 
-console.log(`main`);
-
 const configPath = join(process.cwd(), 'serverConfig.json');
 let httpsOptions: { key: Buffer; cert: Buffer } | undefined;
 

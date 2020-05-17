@@ -12,6 +12,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             ignoreExpiration: false,
             secretOrKey: jwtConstants.secret,
         });
+
+        console.log(`encoding with secret: ${jwtConstants.secret}`);
     }
 
     async validate(payload: IUser): Promise<IUser> {

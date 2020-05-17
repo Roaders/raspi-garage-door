@@ -1,7 +1,7 @@
 import prompts from 'prompts';
 import { compareSync } from 'bcryptjs';
 import { join } from 'path';
-import { IUser } from '../shared';
+import { IUserAuth } from '../shared';
 import { existsSync, readFileSync } from 'fs';
 import chalk from 'chalk';
 
@@ -9,7 +9,7 @@ console.log(`Create new user:`);
 
 function checkCredentials(username: string, password: string) {
     const usersPath = join(process.cwd(), 'users.json');
-    let users: IUser[];
+    let users: IUserAuth[];
 
     if (existsSync(usersPath)) {
         console.log(`Loading users from '${usersPath}'`);
@@ -19,7 +19,7 @@ function checkCredentials(username: string, password: string) {
         return chalk.red(`Users file not found. Exiting.`);
     }
 
-    const user: IUser | undefined = users.filter((user) => user.username === username)[0];
+    const user: IUserAuth | undefined = users.filter((user) => user.username === username)[0];
 
     if (user == null) {
         return false;

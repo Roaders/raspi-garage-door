@@ -2,7 +2,7 @@ import prompts from 'prompts';
 import chalk from 'chalk';
 import { genSaltSync, hashSync } from 'bcryptjs';
 import { join } from 'path';
-import { IUser } from '../shared';
+import { IUserAuth } from '../shared';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 console.log(`Create new user:`);
@@ -23,7 +23,7 @@ async function createUser() {
     const hash = hashSync(responses.password, salt);
 
     const usersPath = join(process.cwd(), 'users.json');
-    let users: IUser[] = [];
+    let users: IUserAuth[] = [];
 
     if (existsSync(usersPath)) {
         console.log(`Loading existing users from '${usersPath}'`);

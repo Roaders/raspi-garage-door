@@ -18,7 +18,7 @@
         "build:server": "cd garage-door-server && npm run build",
         "build:ui": "cd garage-door-ui && npm run build",
         "build:util": "tsc -p util/tsconfig.json",
-        "start-prod": "node dist/garage-door-server/src/main.js",
+        "start-prod": "node -r dotenv/config dist/garage-door-server/src/main.js",
         "create-user": "node dist/util/createUser"
     },
     "bundledDependencies": [
@@ -39,6 +39,7 @@
         "@nestjs/serve-static": "^2.1.1",
         "bcryptjs": "^2.4.3",
         "chalk": "^4.0.0",
+        "dotenv": "^8.2.0",
         "passport": "^0.4.1",
         "passport-jwt": "^4.0.0",
         "passport-local": "^1.0.0",

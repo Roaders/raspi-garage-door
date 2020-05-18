@@ -16,8 +16,6 @@ export class AppController {
     @UseGuards(LocalAuthGuard)
     @Post('login')
     async login(@Request() req: any) {
-        console.log(`LOGIN ROUTE: ${JSON.stringify(req.user)}`);
-
         return this.authService.login(req.user);
     }
 }

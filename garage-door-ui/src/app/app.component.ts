@@ -44,12 +44,9 @@ export class AppComponent {
         );
     }
 
-    public username: string | undefined;
-    public password: string | undefined;
-
-    public login() {
+    public login(username: string, password: string) {
         this.html
-            .post<IAuthResponse>('api/login', { username: this.username, password: this.password })
+            .post<IAuthResponse>('api/login', { username, password })
             .subscribe(
                 (response) => {
                     this._error = undefined;

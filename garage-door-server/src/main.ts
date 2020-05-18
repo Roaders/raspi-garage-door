@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { readFileSync } from 'fs';
 import { IServerConfig } from '../../shared';
+import chalk from 'chalk';
 
 const serverConfig: IServerConfig = process.env;
 let httpsOptions: { key: Buffer; cert: Buffer } | undefined;
@@ -16,6 +17,8 @@ if (serverConfig.certificatePath != null && serverConfig.keyPath != null) {
         key,
         cert,
     };
+} else {
+    console.log(chalk.red(`No certificate defined. Starting in http mode.`));
 }
 
 async function bootstrap() {

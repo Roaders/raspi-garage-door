@@ -11,7 +11,7 @@
         "lint:server": "cd garage-door-server && npm run lint",
         "lint:ui": "cd garage-door-ui && npm run lint",
         "lint:rpi-garage-door": "cd rpi-garage-door && npm run lint",
-        "start": "mkdir \"dist/garage-door-ui/\" -p && concurrently --kill-others-on-fail npm:start:*",
+        "start": "mkdir \"dist/garage-door-ui/\" && concurrently --kill-others-on-fail npm:start:*",
         "start:server": "cd garage-door-server && npm run start:dev",
         "start:ui": "cd garage-door-ui && npm run start",
         "build": "concurrently --kill-others-on-fail npm:build:*",
@@ -21,15 +21,6 @@
         "start-prod": "node -r dotenv/config dist/garage-door-server/src/main.js",
         "create-user": "node dist/util/createUser"
     },
-    "bundledDependencies": [
-        "@nestjs/common",
-        "@nestjs/core",
-        "@nestjs/platform-express",
-        "@nestjs/serve-static",
-        "reflect-metadata",
-        "rimraf",
-        "rxjs"
-    ],
     "dependencies": {
         "@nestjs/common": "^7.0.0",
         "@nestjs/core": "^7.0.0",

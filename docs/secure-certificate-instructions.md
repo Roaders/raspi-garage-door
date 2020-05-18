@@ -11,12 +11,16 @@
 
 5.- Install acme.sh client (more info in https://acme.sh)
 
+```bash
 curl https://get.acme.sh | sh
+```
 
 6.- Once installed, issue the cert for your domain. Here we will export 2 variables containing the previously created Client ID and Secret (obvously you need to replace the content of these variables with the real data):
 
+```bash
 export Dynu_ClientId="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 export Dynu_Secret="yyyyyyyyyyyyyyyyyyyyyyyyy"
 acme.sh --issue --dns dns_dynu -d mydyndomain.dynu.net
+```
 
 https://community.letsencrypt.org/t/failed-authorization-procedure-the-server-could-not-connect-to-the-client-to-verify-the-domain/60656/2

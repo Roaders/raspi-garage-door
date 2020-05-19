@@ -2,12 +2,11 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { jwtConstants } from './constants';
-import { IUser, IRefreshToken, isIUser } from '../../../shared';
-import { UsersService } from 'src/users/users.service';
+import { IUser } from '../../../shared';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(private userService: UsersService) {
+    constructor() {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
@@ -15,11 +14,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         });
     }
 
-    async validate(payload: IUser | IRefreshToken): Promise<IUser | undefined> {
+    async validate(payload: IUser): Promise<IUser> {
         console.log(`JWT Validate: ${JSON.stringify(payload)}`);
 
-        const user = isIUser(payload) ? payload : await this.userService.findFromRefreshToken(payload.refresh_token);
-
-        return user ? { username: user.username } : undefined;
+        return { username: payload.username };
     }
 }

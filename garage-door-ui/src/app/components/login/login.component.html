@@ -1,18 +1,8 @@
 <div>
-    <span>The time is {{time}}</span>
-</div>
-
-<button type="button" (click)="loadTime()">Update Time</button>
-
-<div>
     <span>Error: {{error}}</span>
 </div>
 
-<div>
-    <span>Token: {{token}}</span>
-</div>
-
-<form (ngSubmit) = "login(username.value, password.value)" *ngIf="token == null">
+<form (ngSubmit) = "login(username.value, password.value)">
     <div>Login:</div>
     <div>
         <span>Username:</span>

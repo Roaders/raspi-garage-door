@@ -11,7 +11,7 @@
         "lint:server": "cd garage-door-server && npm run lint",
         "lint:ui": "cd garage-door-ui && npm run lint",
         "lint:rpi-garage-door": "cd rpi-garage-door && npm run lint",
-        "start": "mkdir \"dist/garage-door-ui/\" && concurrently --kill-others-on-fail npm:start:*",
+        "start": "npm run clean && mkdir \"dist/garage-door-ui/\" && concurrently --kill-others-on-fail npm:start:*",
         "start:server": "cd garage-door-server && npm run start:dev",
         "start:ui": "cd garage-door-ui && npm run start",
         "build": "concurrently --kill-others-on-fail npm:build:*",

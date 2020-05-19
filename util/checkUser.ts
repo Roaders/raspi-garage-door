@@ -5,7 +5,7 @@ import { IUserAuth } from '../shared';
 import { existsSync, readFileSync } from 'fs';
 import chalk from 'chalk';
 
-console.log(`Create new user:`);
+console.log(`Check user credentials:`);
 
 function checkCredentials(username: string, password: string) {
     const usersPath = join(process.cwd(), 'users.json');

@@ -19,7 +19,9 @@
         "build:ui": "cd garage-door-ui && npm run build",
         "build:util": "tsc -p util/tsconfig.json",
         "start-prod": "node -r dotenv/config dist/garage-door-server/src/main.js",
-        "create-user": "node dist/util/createUser"
+        "create-user": "node dist/util/createUser",
+        "check-user": "node dist/util/checkUser",
+        "generate-secret": "node dist/util/generateSecret"
     },
     "dependencies": {
         "@nestjs/common": "^7.0.0",

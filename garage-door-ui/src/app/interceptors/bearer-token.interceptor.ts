@@ -1,52 +1,85 @@
 import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, catchError, mergeMap } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { HttpInterceptor, HttpResponse, HttpErrorResponse } from '@angular/common/http';
+import { HttpInterceptor, HttpResponse, HttpErrorResponse, HttpClient } from '@angular/common/http';
 import { HttpRequest } from '@angular/common/http';
 import { HttpHandler } from '@angular/common/http';
 import { HttpEvent } from '@angular/common/http';
 import { HttpHeaders } from '@angular/common/http';
 import { AuthTokenService } from '../services/auth-token.service';
-import { isAuthResponse } from '../../../../shared';
+import { isAuthResponse, IAuthToken } from '../../../../shared';
 import { Router } from '@angular/router';
+
+function isAuthError(error: any): error is HttpErrorResponse {
+    const authError = error as HttpErrorResponse;
+    return authError instanceof HttpErrorResponse && authError.status === 401;
+}
+
+const exchangeUrl = 'api/exchangeToken';
 
 @Injectable()
 export class AuthHttpInterceptor implements HttpInterceptor {
-    constructor(private authTokenService: AuthTokenService, private router: Router) {}
+    constructor(private authTokenService: AuthTokenService, private router: Router, private http: HttpClient) {}
 
     intercept<T>(request: HttpRequest<T>, next: HttpHandler): Observable<HttpEvent<T>> {
-        let mutatedRequest = request;
+        console.log(`request: ${request.url}`);
 
+        return next.handle(this.addBearerToken(request)).pipe(
+            catchError((error) => this.exchangeToken(error, request, next)),
+            tap(
+                (response) => this.updateAuthToken(response),
+                (error) => this.navigateToLogin(error),
+            ),
+        );
+    }
+
+    private addBearerToken<T>(request: HttpRequest<T>) {
         if (this.authTokenService.authToken != null) {
-            console.log(`APPENDING TOKEN`);
+            let token = this.authTokenService.authToken.access_token;
+
+            if (request.url === exchangeUrl) {
+                console.log(`USING Refresh token`);
+                token = this.authTokenService.authToken.refresh_token;
+            }
+
+            console.log(`APPENDING TOKEN ${token}`);
 
             const headers = new HttpHeaders({
-                Authorization: 'Bearer ' + this.authTokenService.authToken.access_token,
+                Authorization: 'Bearer ' + token,
                 'Content-Type': 'application/json',
             });
 
-            mutatedRequest = request.clone({ headers });
-        } else {
-            console.log(`NO TOKEN`);
+            return request.clone({ headers });
         }
+        return request;
+    }
 
-        return next.handle(mutatedRequest).pipe(
-            tap(
-                (response) => {
-                    if (response instanceof HttpResponse && isAuthResponse(response.body)) {
-                        this.authTokenService.authToken = response.body;
-                    }
-                },
-                (error) => {
-                    if (error instanceof HttpErrorResponse) {
-                        if (error.status !== 401) {
-                            return;
-                        }
-                        console.log(`NAVIGATING`);
-                        this.router.navigate(['login']);
-                    }
-                },
-            ),
-        );
+    private exchangeToken<T>(error: any, request: HttpRequest<T>, next: HttpHandler) {
+        if (isAuthError(error) && request.url != exchangeUrl && this.authTokenService.authToken != null) {
+            console.log(`EXCHANGE TOKEN`);
+            return this.http.get<IAuthToken>(exchangeUrl).pipe(
+                mergeMap(() => {
+                    console.log(`Calling original request: ${request.url}`);
+                    return next.handle(this.addBearerToken(request)) as Observable<HttpEvent<T>>;
+                }),
+            );
+        } else {
+            throw error;
+        }
+    }
+
+    private navigateToLogin(error: any) {
+        if (isAuthError(error)) {
+            console.log(`NAVIGATING`);
+            this.router.navigate(['login']);
+        }
+    }
+
+    private updateAuthToken(response: HttpEvent<any>) {
+        console.log(`updateAuthToken ${response.type}`);
+        if (response instanceof HttpResponse && isAuthResponse(response.body)) {
+            console.log(`setting token ${response.url} body: ${response.body.access_token}`);
+            this.authTokenService.authToken = response.body;
+        }
     }
 }

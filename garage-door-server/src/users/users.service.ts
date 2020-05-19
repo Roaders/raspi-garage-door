@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { join } from 'path';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync, promises } from 'fs';
 import chalk from 'chalk';
-import { IUserAuth } from '../../../shared';
+import { IUserAuth, IUser, IUserToken } from '../../../shared';
 
 @Injectable()
 export class UsersService {
@@ -14,12 +14,32 @@ export class UsersService {
         if (existsSync(usersPath)) {
             console.log(`Loading users from '${usersPath}'`);
 
-            users = JSON.parse(readFileSync(usersPath).toString());
+            users = JSON.parse((await promises.readFile(usersPath)).toString());
         } else {
             console.log(chalk.red(`Users file not found. Exiting.`));
             return;
         }
 
         return users.filter((user) => user.username === username)[0];
+    }
+
+    public async findFromRefreshToken(refreshToken: string): Promise<IUser | undefined> {
+        console.log(`findFromRefreshToken: ${refreshToken}`);
+        const tokensPath = join(__dirname, '../../../../', 'userTokens.json');
+
+        let tokens: IUserToken[];
+
+        if (existsSync(tokensPath)) {
+            console.log(`Loading tokens from '${tokensPath}'`);
+
+            tokens = JSON.parse((await promises.readFile(tokensPath)).toString());
+        } else {
+            console.log(chalk.red(`Tokens file not found. Exiting.`));
+            return;
+        }
+
+        return tokens
+            .filter((token) => token.refresh_token === refreshToken)
+            .map((token) => ({ username: token.username }))[0];
     }
 }

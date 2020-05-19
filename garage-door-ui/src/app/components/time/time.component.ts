@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
     styleUrls: ['./time.component.scss'],
 })
 export class TimeComponent {
-    constructor(private html: HttpClient) {}
+    constructor(private http: HttpClient) {}
 
     private _error: string | undefined;
 
@@ -22,7 +22,7 @@ export class TimeComponent {
     }
 
     public loadTime() {
-        this.html.get<{ time: string }>('api/time').subscribe(
+        this.http.get<{ time: string }>('api/time').subscribe(
             (response) => {
                 console.log(`RESPONSE received: ${response.time}`);
 

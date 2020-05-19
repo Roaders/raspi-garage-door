@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
     styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-    constructor(private html: HttpClient, private router: Router) {}
+    constructor(private http: HttpClient, private router: Router) {}
 
     private _error: string | undefined;
 
@@ -18,7 +18,7 @@ export class LoginComponent {
     }
 
     public login(username: string, password: string) {
-        this.html
+        this.http
             .post<IAuthToken>('api/login', { username, password })
             .subscribe(
                 (response) => {

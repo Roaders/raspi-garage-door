@@ -13,6 +13,11 @@ export interface IUserAuth extends IUser {
     hash: string;
 }
 
-export interface IAuthResponse {
+export interface IAuthToken {
     access_token: string;
+}
+
+export function isAuthResponse(value: any): value is IAuthToken {
+    const authResponse = value as IAuthToken;
+    return authResponse != null && typeof authResponse.access_token === 'string';
 }

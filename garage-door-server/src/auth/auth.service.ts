@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { compareSync } from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-import { IUser, IAuthResponse } from '../../../shared';
+import { IUser, IAuthToken } from '../../../shared';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
         return undefined;
     }
 
-    async login(user: IUser): Promise<IAuthResponse> {
+    async login(user: IUser): Promise<IAuthToken> {
         return {
             access_token: this.jwtService.sign(user),
         };

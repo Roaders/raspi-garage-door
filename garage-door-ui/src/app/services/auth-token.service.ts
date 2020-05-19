@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { IAuthToken } from '../../../../shared';
 
 @Injectable()
 export class AuthTokenService {
-    public authToken: string | undefined;
+    public authToken: IAuthToken | undefined;
 }

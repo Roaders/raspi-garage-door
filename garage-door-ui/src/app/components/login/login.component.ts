@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { AuthTokenService } from '../../services/auth-token.service';
-import { IAuthResponse } from '../../../../../shared';
+import { IAuthToken } from '../../../../../shared';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -9,7 +9,7 @@ import { IAuthResponse } from '../../../../../shared';
     styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-    constructor(private html: HttpClient, private tokenService: AuthTokenService) {}
+    constructor(private html: HttpClient, private router: Router) {}
 
     private _error: string | undefined;
 
@@ -19,12 +19,12 @@ export class LoginComponent {
 
     public login(username: string, password: string) {
         this.html
-            .post<IAuthResponse>('api/login', { username, password })
+            .post<IAuthToken>('api/login', { username, password })
             .subscribe(
                 (response) => {
                     this._error = undefined;
-                    this.tokenService.authToken = response.access_token;
                     console.log(`LOGIN received: ${JSON.stringify(response)}`);
+                    this.router.navigate(['']);
                 },
                 (error) => {
                     this._error = error.message;

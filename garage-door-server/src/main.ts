@@ -22,7 +22,10 @@ if (serverConfig.certificatePath != null && serverConfig.keyPath != null) {
 }
 
 async function bootstrap() {
+    const port = serverConfig.port || 3000;
     const app = await NestFactory.create(AppModule, { httpsOptions });
-    await app.listen(3000);
+    await app.listen(port);
+
+    console.log(`Server listening on port ${port}`);
 }
 bootstrap();

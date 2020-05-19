@@ -21,6 +21,7 @@ export class AuthService {
     async login(user: IUser): Promise<IAuthToken> {
         return {
             access_token: this.jwtService.sign(user),
+            refresh_token: this.jwtService.sign(user, { expiresIn: '60s' }),
         };
     }
 }

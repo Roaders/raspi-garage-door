@@ -25,6 +25,15 @@ export interface IRefreshToken {
     refresh_token: string;
 }
 
+export interface ILoginCredentials {
+    username: string;
+    password: string;
+}
+
+export interface IControlDoor {
+    action: 'open' | 'close';
+}
+
 export function isAuthResponse(value: any): value is IAuthToken {
     const authResponse = value as IAuthToken;
     return (

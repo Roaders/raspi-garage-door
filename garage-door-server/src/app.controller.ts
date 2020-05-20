@@ -1,33 +1,36 @@
-import { Controller, Get, UseGuards, Request, Post, Put } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request as RequestParam, Post, Put } from '@nestjs/common';
 import { AppService } from './app.service';
 import { LocalAuthGuard, AuthService, JwtAuthGuard, ExchangeTokenAuthGuard } from './auth';
+import { Request } from 'express';
+import { IControlDoor } from '../../shared';
 
 @Controller('api')
 export class AppController {
     constructor(private readonly appService: AppService, private authService: AuthService) {}
 
-    @Get('time')
+    @Put('door')
     @UseGuards(JwtAuthGuard)
-    getTime() {
-        return this.appService.getTime();
+    controlDoor(@RequestParam() req: Request<any, any, IControlDoor>) {
+        console.log(`controlDoor ${req.body.action}`);
+        return { result: `Control door ${req.body.action} at ${this.appService.getTime()}` };
     }
 
-    @Put('loginAndControl')
+    @Put('login/door')
     @UseGuards(LocalAuthGuard)
-    getTimeBasic() {
-        console.log(`loginAndControl`);
-        return this.appService.getTime();
+    loginControlDoor(@RequestParam() req: Request<any, any, IControlDoor>) {
+        console.log(`login-control-door ${req.body.action}`);
+        return { result: `Login Control door ${req.body.action} at ${this.appService.getTime()}` };
     }
 
     @UseGuards(LocalAuthGuard)
     @Post('login')
-    async login(@Request() req: any) {
+    async login(@RequestParam() req: any) {
         return this.authService.login(req.user);
     }
 
     @UseGuards(ExchangeTokenAuthGuard)
     @Get('exchangeToken')
-    async exchangeToken(@Request() req: any) {
+    async exchangeToken(@RequestParam() req: any) {
         console.log(`exchangeToken endpoint: ${req.user.username}`);
         return this.authService.login(req.user);
     }

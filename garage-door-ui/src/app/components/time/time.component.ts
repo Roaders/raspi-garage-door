@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { IControlDoor } from '../../../../../shared';
 
 @Component({
     selector: 'app-time',
@@ -22,11 +23,14 @@ export class TimeComponent {
     }
 
     public loadTime() {
-        this.http.get<{ time: string }>('api/time').subscribe(
+        const payload: IControlDoor = {
+            action: 'open',
+        };
+        this.http.put<{ result: string }>('api/door', payload).subscribe(
             (response) => {
-                console.log(`RESPONSE received: ${response.time}`);
+                console.log(`RESPONSE received: ${response.result}`);
 
-                this._time = response.time;
+                this._time = response.result;
             },
             (error) => {
                 this._error = error.message;

@@ -1,7 +1,6 @@
-import { Controller, Get, UseGuards, Request, Post, UseFilters } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Post, Put } from '@nestjs/common';
 import { AppService } from './app.service';
-import { LocalAuthGuard, AuthService, JwtAuthGuard, BasicAuthGuard, ExchangeTokenAuthGuard } from './auth';
-import { BasicAuthExceptionFilter } from './auth/basic-auth-exception.filter';
+import { LocalAuthGuard, AuthService, JwtAuthGuard, ExchangeTokenAuthGuard } from './auth';
 
 @Controller('api')
 export class AppController {
@@ -13,11 +12,10 @@ export class AppController {
         return this.appService.getTime();
     }
 
-    @Get('timeBasic')
-    @UseGuards(BasicAuthGuard)
-    @UseFilters(BasicAuthExceptionFilter)
+    @Put('loginAndControl')
+    @UseGuards(LocalAuthGuard)
     getTimeBasic() {
-        console.log(`TIME BASIC`);
+        console.log(`loginAndControl`);
         return this.appService.getTime();
     }
 

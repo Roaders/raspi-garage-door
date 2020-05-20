@@ -7,6 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { JwtStrategy } from './jwt.strategy';
 import { ExchangeTokenStrategy } from './exhange-token.strategy';
+import { BasicStrategy } from './basic.strategy';
 
 @Module({
     imports: [
@@ -17,7 +18,7 @@ import { ExchangeTokenStrategy } from './exhange-token.strategy';
             signOptions: { expiresIn: jwtConstants.tokenExpiry },
         }),
     ],
-    providers: [AuthService, LocalStrategy, JwtStrategy, ExchangeTokenStrategy],
+    providers: [AuthService, LocalStrategy, BasicStrategy, JwtStrategy, ExchangeTokenStrategy],
     exports: [AuthService],
 })
 export class AuthModule {}

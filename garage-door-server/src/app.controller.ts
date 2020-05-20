@@ -1,9 +1,6 @@
 import { Controller, Get, UseGuards, Request, Post, UseFilters } from '@nestjs/common';
 import { AppService } from './app.service';
-import { LocalAuthGuard, AuthService } from './auth';
-import { JwtAuthGuard } from './auth/jwt.auth-guard';
-import { ExchangeTokenAuthGuard } from './auth/exchange-token.auth-guard';
-import { BasicAuthGuard } from './auth/basic.auth-guard';
+import { LocalAuthGuard, AuthService, JwtAuthGuard, BasicAuthGuard, ExchangeTokenAuthGuard } from './auth';
 import { BasicAuthExceptionFilter } from './auth/basic-auth-exception.filter';
 
 @Controller('api')

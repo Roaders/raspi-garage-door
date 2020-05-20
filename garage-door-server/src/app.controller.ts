@@ -17,6 +17,7 @@ export class AppController {
     @UseGuards(BasicAuthGuard)
     @UseFilters(BasicAuthExceptionFilter)
     getTimeBasic() {
+        console.log(`TIME BASIC`);
         return this.appService.getTime();
     }
 

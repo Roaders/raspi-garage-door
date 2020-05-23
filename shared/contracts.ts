@@ -3,6 +3,7 @@ export interface IServerConfig {
     certificatePath?: string;
     jwtSecret?: string;
     port?: number;
+    sslPort?: number;
 }
 
 export interface IUser {

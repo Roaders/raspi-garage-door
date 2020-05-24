@@ -24,6 +24,14 @@ export class GarageDoorComponent implements OnInit {
         return this._status == null && this._statusError == null;
     }
 
+    public get canOpen(): boolean {
+        return this._status?.status != 'OPEN';
+    }
+
+    public get canClose(): boolean {
+        return this._status?.status != 'CLOSED';
+    }
+
     private _status: IGarageDoorStatus | undefined;
 
     public get statusString(): string | undefined {

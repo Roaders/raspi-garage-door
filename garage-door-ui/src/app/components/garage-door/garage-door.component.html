@@ -7,6 +7,6 @@
 </div>
 
 <div>
-    <button type="button" (click)="openDoor()">Open Door</button>
-    <button type="button" (click)="closeDoor()">Close Door</button>
+    <button [disabled]="!canOpen" type="button" (click)="openDoor()">Open Door</button>
+    <button [disabled]="!canClose" type="button" (click)="closeDoor()">Close Door</button> 
 </div>

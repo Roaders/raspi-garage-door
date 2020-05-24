@@ -7,6 +7,7 @@ import { AuthModule } from './auth';
 import { UsersModule } from './users/users.module';
 import chalk from 'chalk';
 import { GarageDoorService } from '../../rpi-garage-door/src';
+import { DoorStatusGateway } from './services';
 
 const rootPath = join(__dirname, '../../', 'garage-door-ui');
 const imports = new Array<DynamicModule>();
@@ -24,6 +25,6 @@ if (existsSync(rootPath)) {
 @Module({
     imports: [...imports, AuthModule, UsersModule],
     controllers: [AppController],
-    providers: [GarageDoorService],
+    providers: [GarageDoorService, DoorStatusGateway],
 })
 export class AppModule {}

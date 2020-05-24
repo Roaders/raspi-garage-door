@@ -1,25 +1,28 @@
 import { Controller, Get, UseGuards, Request as RequestParam, Post, Put } from '@nestjs/common';
-import { AppService } from './app.service';
 import { LocalAuthGuard, AuthService, JwtAuthGuard, ExchangeTokenAuthGuard } from './auth';
 import { Request } from 'express';
-import { IControlDoor } from '../../shared';
+import { GarageDoorService } from '../../rpi-garage-door/src';
 
 @Controller('api')
 export class AppController {
-    constructor(private readonly appService: AppService, private authService: AuthService) {}
+    constructor(private authService: AuthService, private garageDoorService: GarageDoorService) {}
 
-    @Put('door')
+    @Get('/garage/door')
     @UseGuards(JwtAuthGuard)
-    controlDoor(@RequestParam() req: Request<any, any, IControlDoor>) {
-        console.log(`controlDoor ${req.body.action}`);
-        return { result: `Control door ${req.body.action} at ${this.appService.getTime()}` };
+    getDoorStatus() {
+        return this.garageDoorService.getState();
+    }
+
+    @Put('/garage/door')
+    @UseGuards(JwtAuthGuard)
+    controlDoor(@RequestParam() req: Request) {
+        return this.garageDoorService.setState(req.body);
     }
 
     @Put('login/door')
     @UseGuards(LocalAuthGuard)
-    loginControlDoor(@RequestParam() req: Request<any, any, IControlDoor>) {
-        console.log(`login-control-door ${req.body.action}`);
-        return { result: `Login Control door ${req.body.action} at ${this.appService.getTime()}` };
+    loginControlDoor(@RequestParam() req: Request) {
+        return this.garageDoorService.setState(req.body);
     }
 
     @UseGuards(LocalAuthGuard)
@@ -31,7 +34,6 @@ export class AppController {
     @UseGuards(ExchangeTokenAuthGuard)
     @Get('exchangeToken')
     async exchangeToken(@RequestParam() req: any) {
-        console.log(`exchangeToken endpoint: ${req.user.username}`);
         return this.authService.login(req.user);
     }
 }

@@ -4,21 +4,22 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { AppComponent } from './components/app/app.component';
 import { AuthHttpInterceptor } from './interceptors/bearer-token.interceptor';
-import { AuthTokenService } from './services/auth-token.service';
+import { AuthTokenService, GarageDoorHttpService } from './services';
 import { LoginComponent } from './components/login/login.component';
-import { TimeComponent } from './components/time/time.component';
 import { AppRoutingModule } from './app-routing.module';
-import { AuthGuard } from './services/auth.guard';
-import { LoggedInGuard } from './services/logged-in.guard';
+import { AuthGuard } from './route-guards/auth.guard';
+import { LoggedInGuard } from './route-guards/logged-in.guard';
+import { GarageDoorComponent } from './components/garage-door/garage-door.component';
 
 @NgModule({
-    declarations: [AppComponent, LoginComponent, TimeComponent],
+    declarations: [AppComponent, LoginComponent, GarageDoorComponent],
     imports: [BrowserModule, HttpClientModule, FormsModule, AppRoutingModule],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
         AuthTokenService,
         AuthGuard,
         LoggedInGuard,
+        GarageDoorHttpService,
     ],
     bootstrap: [AppComponent],
 })

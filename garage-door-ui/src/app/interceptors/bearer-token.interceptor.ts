@@ -22,8 +22,6 @@ export class AuthHttpInterceptor implements HttpInterceptor {
     constructor(private authTokenService: AuthTokenService, private router: Router, private http: HttpClient) {}
 
     intercept<T>(request: HttpRequest<T>, next: HttpHandler): Observable<HttpEvent<T>> {
-        console.log(`request: ${request.url}`);
-
         return next.handle(this.addBearerToken(request)).pipe(
             catchError((error) => this.exchangeToken(error, request, next)),
             tap(
@@ -38,11 +36,8 @@ export class AuthHttpInterceptor implements HttpInterceptor {
             let token = this.authTokenService.authToken.access_token;
 
             if (request.url === exchangeUrl) {
-                console.log(`USING Refresh token`);
                 token = this.authTokenService.authToken.refresh_token;
             }
-
-            console.log(`APPENDING TOKEN ${token}`);
 
             const headers = new HttpHeaders({
                 Authorization: 'Bearer ' + token,
@@ -56,10 +51,8 @@ export class AuthHttpInterceptor implements HttpInterceptor {
 
     private exchangeToken<T>(error: any, request: HttpRequest<T>, next: HttpHandler) {
         if (isAuthError(error) && request.url != exchangeUrl && this.authTokenService.authToken != null) {
-            console.log(`EXCHANGE TOKEN`);
             return this.http.get<IAuthToken>(exchangeUrl).pipe(
                 mergeMap(() => {
-                    console.log(`Calling original request: ${request.url}`);
                     return next.handle(this.addBearerToken(request)) as Observable<HttpEvent<T>>;
                 }),
             );
@@ -70,15 +63,12 @@ export class AuthHttpInterceptor implements HttpInterceptor {
 
     private navigateToLogin(error: any) {
         if (isAuthError(error)) {
-            console.log(`NAVIGATING`);
             this.router.navigate(['login']);
         }
     }
 
     private updateAuthToken(response: HttpEvent<any>) {
-        console.log(`updateAuthToken ${response.type}`);
         if (response instanceof HttpResponse && isAuthResponse(response.body)) {
-            console.log(`setting token ${response.url} body: ${response.body.access_token}`);
             this.authTokenService.authToken = response.body;
         }
     }

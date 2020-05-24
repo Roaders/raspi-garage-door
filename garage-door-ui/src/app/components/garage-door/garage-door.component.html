@@ -1,0 +1,12 @@
+
+<div>
+    <span>Status:</span>
+    <span *ngIf="showStatus">{{statusString}}</span>
+    <span *ngIf="isLoading">Loading...</span>
+    <span *ngIf="statusError != null">Error: {{statusError}}</span>
+</div>
+
+<div>
+    <button type="button" (click)="openDoor()">Open Door</button>
+    <button type="button" (click)="closeDoor()">Close Door</button>
+</div>

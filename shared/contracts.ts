@@ -31,10 +31,6 @@ export interface ILoginCredentials {
     password: string;
 }
 
-export interface IControlDoor {
-    action: 'open' | 'close';
-}
-
 export function isAuthResponse(value: any): value is IAuthToken {
     const authResponse = value as IAuthToken;
     return (

@@ -65,6 +65,7 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public ngOnInit(): void {
+        this.service.subscribeToPushMessages();
         this.loadStatus();
     }
 

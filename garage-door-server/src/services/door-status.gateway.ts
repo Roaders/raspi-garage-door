@@ -1,21 +1,36 @@
-import { WebSocketGateway, ConnectedSocket, OnGatewayInit, OnGatewayConnection } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import {
+    WebSocketGateway,
+    OnGatewayInit,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    WebSocketServer,
+    SubscribeMessage,
+} from '@nestjs/websockets';
+import { Socket, Server } from 'socket.io';
 
-@WebSocketGateway()
-export class DoorStatusGateway implements OnGatewayInit, OnGatewayConnection {
+@WebSocketGateway({ transports: ['websocket'] })
+export class DoorStatusGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     constructor() {
         console.log(`DoorStatusGateway`);
     }
 
-    afterInit(@ConnectedSocket() client: Socket) {
-        setInterval(() => {
-            const now = Date.now();
-            console.log(`Emitting... (${now})`);
-            client.emit(`Time is ${now}`);
-        }, 2500);
+    @WebSocketServer()
+    server!: Server;
+
+    @SubscribeMessage('msgToServer')
+    handleMessage(client: Socket, payload: string): void {
+        this.server.emit(`msgToClient from ${client}`, payload);
     }
 
-    handleConnection() {
-        console.log(`Gateway connection`);
+    afterInit(server: Server) {
+        console.log(`INIT: ${server}`);
+    }
+
+    handleDisconnect(client: Socket) {
+        console.log(`Client disconnected: ${client.id}`);
+    }
+
+    handleConnection(client: Socket, ...args: any[]) {
+        console.log(`Client connected: ${client.id} args: ${args}`);
     }
 }

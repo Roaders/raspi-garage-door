@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { IGarageDoorStatus, writeStatus } from '../../../../rpi-garage-door/src';
 import { Socket } from 'ngx-socket-io';
+import { DOOR_STATUS_UPDATES } from '../../../../shared';
 
 @Injectable()
 export class GarageDoorHttpService {
@@ -19,9 +20,8 @@ export class GarageDoorHttpService {
         return this.setGarageState('CLOSED');
     }
 
-    public subscribeToPushMessages() {
-        console.log(`subscribeToPushMessages`);
-        return this.socket.fromEvent('newmsg');
+    public statusUpdatesStream() {
+        return this.socket.fromEvent<IGarageDoorStatus>(DOOR_STATUS_UPDATES);
     }
 
     private setGarageState(status: writeStatus) {

@@ -1,12 +1,10 @@
-import { WebSocketGateway, WebSocketServer, OnGatewayInit } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { IGarageDoorStatus } from '../../../rpi-garage-door/src';
+import { DOOR_STATUS_UPDATES } from '../../../shared';
 
 @WebSocketGateway()
-export class DoorStatusGateway implements OnGatewayInit {
-    constructor() {
-        console.log(`DoorStatusGateway`);
-    }
-
+export class DoorStatusGateway {
     @WebSocketServer()
     server: Server | undefined;
 
@@ -14,9 +12,7 @@ export class DoorStatusGateway implements OnGatewayInit {
         console.log(`Client connected: ${client.id} ${args}`);
     }
 
-    public afterInit(): void {
-        console.log(`Init ${this.server}`);
-
-        setInterval(() => this.server?.emit('newmsg', `test: ${Date.now()}`), 500);
+    public updateStatus(status: IGarageDoorStatus) {
+        this.server?.emit(DOOR_STATUS_UPDATES, status);
     }
 }

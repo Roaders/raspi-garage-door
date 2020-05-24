@@ -43,11 +43,11 @@ export class GarageDoorComponent implements OnInit {
             case 'CLOSED':
                 return `Closed`;
             case 'CLOSING':
-                return `Closing`;
+                return `Closing...`;
             case 'OPEN':
                 return `Open`;
             case 'OPENING':
-                return `Opening`;
+                return `Opening...`;
 
             default:
                 return 'Unknown';
@@ -65,7 +65,7 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.service.subscribeToPushMessages().subscribe((data) => console.log(`MESSAGE ${data}`));
+        this.service.statusUpdatesStream().subscribe(this.onStatus.bind(this));
         this.loadStatus();
     }
 

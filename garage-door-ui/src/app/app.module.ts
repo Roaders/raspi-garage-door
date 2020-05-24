@@ -8,7 +8,8 @@ import { AuthTokenService } from './services/auth-token.service';
 import { LoginComponent } from './components/login/login.component';
 import { TimeComponent } from './components/time/time.component';
 import { AppRoutingModule } from './app-routing.module';
-import { AuthGuardService } from './services/auth-guard.service';
+import { AuthGuard } from './services/auth.guard';
+import { LoggedInGuard } from './services/logged-in.guard';
 
 @NgModule({
     declarations: [AppComponent, LoginComponent, TimeComponent],
@@ -16,7 +17,8 @@ import { AuthGuardService } from './services/auth-guard.service';
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
         AuthTokenService,
-        AuthGuardService,
+        AuthGuard,
+        LoggedInGuard,
     ],
     bootstrap: [AppComponent],
 })

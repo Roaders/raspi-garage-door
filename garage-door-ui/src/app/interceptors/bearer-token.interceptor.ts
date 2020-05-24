@@ -63,6 +63,7 @@ export class AuthHttpInterceptor implements HttpInterceptor {
 
     private navigateToLogin(error: any) {
         if (isAuthError(error)) {
+            this.authTokenService.authToken = undefined;
             this.router.navigate(['login']);
         }
     }

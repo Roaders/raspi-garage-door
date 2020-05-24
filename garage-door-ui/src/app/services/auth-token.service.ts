@@ -10,7 +10,11 @@ export class AuthTokenService {
         return rawString != null ? JSON.parse(rawString) : undefined;
     }
 
-    public set authToken(v: IAuthToken | undefined) {
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(v));
+    public set authToken(value: IAuthToken | undefined) {
+        if (value != null) {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(value));
+        } else {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+        }
     }
 }

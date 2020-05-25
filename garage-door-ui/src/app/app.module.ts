@@ -11,13 +11,19 @@ import { AuthGuard } from './route-guards/auth.guard';
 import { LoggedInGuard } from './route-guards/logged-in.guard';
 import { GarageDoorComponent } from './components/garage-door/garage-door.component';
 import { SocketIoModule } from 'ngx-socket-io';
+import { environment } from '../environments/environment';
 
-const url = `${location.protocol}//${location.host}`;
-console.log(`IO connectiong to ${url}`);
+console.log(`IO connecting to ${environment.updatesUrl}`);
 
 @NgModule({
     declarations: [AppComponent, LoginComponent, GarageDoorComponent],
-    imports: [BrowserModule, HttpClientModule, FormsModule, AppRoutingModule, SocketIoModule.forRoot({ url })],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        AppRoutingModule,
+        SocketIoModule.forRoot({ url: environment.updatesUrl }),
+    ],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
         AuthTokenService,

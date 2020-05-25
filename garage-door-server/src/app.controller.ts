@@ -2,16 +2,10 @@ import { Controller, Get, UseGuards, Request as RequestParam, Post, Put } from '
 import { LocalAuthGuard, AuthService, JwtAuthGuard, ExchangeTokenAuthGuard } from './auth';
 import { Request } from 'express';
 import { GarageDoorService } from '../../rpi-garage-door/src';
-import { DoorStatusGateway } from './services';
-import { from } from 'rxjs';
 
 @Controller('api')
 export class AppController {
-    constructor(
-        private authService: AuthService,
-        private garageDoorService: GarageDoorService,
-        private gateway: DoorStatusGateway,
-    ) {}
+    constructor(private authService: AuthService, private garageDoorService: GarageDoorService) {}
 
     @Get('/garage/door')
     @UseGuards(JwtAuthGuard)
@@ -22,10 +16,6 @@ export class AppController {
     @Put('/garage/door')
     @UseGuards(JwtAuthGuard)
     controlDoor(@RequestParam() req: Request) {
-        setTimeout(
-            () => from(this.garageDoorService.getState()).subscribe((status) => this.gateway.updateStatus(status)),
-            Math.random() * 5000,
-        );
         return this.garageDoorService.setState(req.body);
     }
 

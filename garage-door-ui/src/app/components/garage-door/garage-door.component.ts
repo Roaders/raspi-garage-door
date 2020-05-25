@@ -65,7 +65,10 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.service.statusUpdatesStream().subscribe(this.onStatus.bind(this));
+        this.service.statusUpdatesStream().subscribe((event) => {
+            console.log(`STREAM UPDATE: ${event.status}`);
+            this.onStatus(event);
+        });
         this.loadStatus();
     }
 

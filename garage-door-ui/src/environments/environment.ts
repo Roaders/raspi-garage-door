@@ -4,6 +4,7 @@
 
 export const environment = {
     production: false,
+    updatesUrl: `http://localhost:3000`,
 };
 
 /*

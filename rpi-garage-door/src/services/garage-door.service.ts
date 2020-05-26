@@ -1,38 +1,19 @@
 import { IGarageDoorStatus, writeStatus } from '../contracts';
+import { AsyncIterableServiceFactory, AsyncIterableService } from './async-iterable.service';
 
 function unsupportedWrite(state: never): IGarageDoorStatus {
     throw new Error(`Could not set door status to '${state}'`);
 }
 
-export class GarageDoorService implements AsyncIterable<IGarageDoorStatus> {
-    private _status: IGarageDoorStatus | undefined;
-    private _resolveFunction: ((value: IteratorYieldResult<IGarageDoorStatus>) => void) | undefined;
-    private _nextPromise: Promise<IteratorResult<IGarageDoorStatus>> | undefined;
-
-    [Symbol.asyncIterator](): AsyncIterator<IGarageDoorStatus> {
-        return {
-            next: () => {
-                let promise = this._nextPromise;
-                if (promise == undefined) {
-                    promise = new Promise((resolve) => (this._resolveFunction = resolve));
-                    this._nextPromise = promise;
-                }
-                return promise;
-            },
-        };
+export class GarageDoorService {
+    constructor(factory: AsyncIterableServiceFactory<IGarageDoorStatus>) {
+        this.events = factory.create();
     }
 
+    public readonly events: AsyncIterableService<IGarageDoorStatus>;
+    private _status: IGarageDoorStatus | undefined;
+
     public async getState(): Promise<IGarageDoorStatus> {
-        switch (this._status?.status) {
-            case 'OPENING':
-                this._status = { status: 'OPEN' };
-                break;
-
-            case 'CLOSING':
-                this._status = { status: 'CLOSED' };
-                break;
-        }
-
         this._status = this._status || { status: 'UNKNOWN' };
 
         return this._status;
@@ -61,12 +42,6 @@ export class GarageDoorService implements AsyncIterable<IGarageDoorStatus> {
 
     private set status(value: IGarageDoorStatus) {
         this._status = value;
-
-        if (this._resolveFunction != null) {
-            this._resolveFunction({ value, done: false });
-
-            this._nextPromise = undefined;
-            this._resolveFunction = undefined;
-        }
+        this.events.emit(value);
     }
 }

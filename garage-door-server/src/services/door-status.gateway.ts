@@ -38,7 +38,7 @@ export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconne
     private async listenForEvents() {
         if (!this._listening) {
             this._listening = true;
-            for await (const event of this.garageDoorService) {
+            for await (const event of this.garageDoorService.events) {
                 this._listening = true;
                 this.updateStatus(event);
             }

@@ -7,10 +7,20 @@ import { randomBytes } from 'crypto';
 import { jwtConstants } from './constants';
 import { join } from 'path';
 import { existsSync, promises } from 'fs';
+import { verify } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
     constructor(private usersService: UsersService, private jwtService: JwtService) {}
+
+    public validateToken(token: string) {
+        try {
+            return verify(token, jwtConstants.secret);
+        } catch (e) {
+            console.log(`ERROR: ${e}`);
+        }
+        return undefined;
+    }
 
     async validateUser(username: string, password: string): Promise<IUser | undefined> {
         const user = await this.usersService.findOne(username);

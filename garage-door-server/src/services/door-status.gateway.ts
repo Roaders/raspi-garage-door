@@ -2,21 +2,26 @@ import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDiscon
 import { Server, Socket } from 'socket.io';
 import { IGarageDoorStatus, GarageDoorService } from '../../../rpi-garage-door/src';
 import { DOOR_STATUS_UPDATES } from '../../../shared';
+import { AuthService } from '../auth/';
 
 @WebSocketGateway()
 export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconnect {
-    constructor(private garageDoorService: GarageDoorService) {}
+    constructor(private garageDoorService: GarageDoorService, private authService: AuthService) {}
 
-    private clients: { [key: string]: any[] } = {};
+    private clients: { [key: string]: string } = {};
     private _listening = false;
 
     @WebSocketServer()
     server: Server | undefined;
 
-    public handleConnection(client: Socket, ...args: any[]) {
-        this.clients[client.id] = args;
-        console.log(`Client ${client.id} connected (${Object.keys(this.clients).length})`);
+    public handleConnection(socket: Socket) {
+        const tokenValid = this.authService.validateToken(socket.handshake.query.token);
 
+        if (tokenValid == null) {
+            socket.disconnect();
+        }
+
+        this.clients[socket.id] = socket.id;
         this.listenForEvents();
     }
 

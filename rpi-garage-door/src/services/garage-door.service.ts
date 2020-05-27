@@ -29,7 +29,7 @@ export class GarageDoorService {
         gpio.setMode(this._options.pinAddressingMode);
         gpio.setup(this._options.doorOpenSwitchPin, 'in', 'both');
         gpio.setup(this._options.doorClosedSwitchPin, 'in', 'both');
-        gpio.setup(this._options.buttonPressRelayPin, 'out');
+        gpio.setup(this._options.buttonPressRelayPin, 'high');
         fromEvent(gpio, 'change')
             .pipe(
                 delay(this._options.stateChangeDelay),
@@ -72,6 +72,8 @@ export class GarageDoorService {
                 return unsupportedWrite(value.status);
         }
 
+        this.pressButton();
+
         this.status = status;
         return status;
     }
@@ -79,6 +81,15 @@ export class GarageDoorService {
     private set status(value: IGarageDoorStatus) {
         this._status = value;
         this.events.emit(value);
+    }
+
+    private pressButton() {
+        return from(gpio.promise.write(this._options.buttonPressRelayPin, false))
+            .pipe(
+                delay(this._options.buttonPressInterval),
+                mergeMap(() => from(gpio.promise.write(this._options.buttonPressRelayPin, true))),
+            )
+            .toPromise();
     }
 
     private readPin(pin: number): Observable<boolean> {

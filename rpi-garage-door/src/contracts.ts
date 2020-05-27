@@ -1,7 +1,7 @@
-export type writeStatus = 'OPEN' | 'CLOSED';
-export type status = writeStatus | 'OPENING' | 'CLOSING' | 'UNKNOWN';
+export type UPDATE_DOOR_STATUS = 'OPEN' | 'CLOSED';
+export type DOOR_STATUS = UPDATE_DOOR_STATUS | 'OPENING' | 'CLOSING' | 'UNKNOWN';
 
-export interface IGarageDoorStatus<T extends writeStatus | status = status> {
+export interface IGarageDoorStatus<T extends UPDATE_DOOR_STATUS | DOOR_STATUS = DOOR_STATUS> {
     readonly status: T;
 }
 
@@ -35,7 +35,7 @@ export interface IGarageDoorOptions {
     doorClosedSwitchPin: number;
     /**
      * amount of time to wait once a switch is triggered before updateing state in ms
-     * defaults to 1 seconds
+     * defaults to 2 seconds
      */
     stateChangeDelay: number;
 }

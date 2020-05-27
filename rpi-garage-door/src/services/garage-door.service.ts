@@ -1,6 +1,9 @@
-import { IGarageDoorStatus, writeStatus, IGarageDoorOptions } from '../contracts';
+import { IGarageDoorStatus, UPDATE_DOOR_STATUS, IGarageDoorOptions, DOOR_STATUS } from '../contracts';
 import { AsyncIterableServiceFactory, AsyncIterableService } from './async-iterable.service';
 import gpio from 'rpi-gpio';
+import { combineLatest, from, Observable, fromEvent } from 'rxjs';
+import { take, map, tap, delay, mergeMap } from 'rxjs/operators';
+import { getStatus } from '../helpers/status-helper';
 
 function unsupportedWrite(state: never): IGarageDoorStatus {
     throw new Error(`Could not set door status to '${state}'`);
@@ -12,7 +15,7 @@ const defaultOptions: IGarageDoorOptions = {
     buttonPressRelayPin: 11,
     doorOpenSwitchPin: 13,
     doorClosedSwitchPin: 15,
-    stateChangeDelay: 1000,
+    stateChangeDelay: 2000,
 };
 
 export class GarageDoorService {
@@ -24,17 +27,37 @@ export class GarageDoorService {
         this._options = { ...defaultOptions, ...options };
 
         gpio.setMode(this._options.pinAddressingMode);
+        gpio.setup(this._options.doorOpenSwitchPin, 'in', 'both');
+        gpio.setup(this._options.doorClosedSwitchPin, 'in', 'both');
+        gpio.setup(this._options.buttonPressRelayPin, 'out');
+        fromEvent(gpio, 'change')
+            .pipe(
+                delay(this._options.stateChangeDelay),
+                mergeMap(() => from(this.getState())),
+            )
+            .subscribe();
     }
 
     public readonly events: AsyncIterableService<IGarageDoorStatus>;
 
     public async getState(): Promise<IGarageDoorStatus> {
-        this._status = this._status || { status: 'UNKNOWN' };
-
-        return this._status;
+        return combineLatest(
+            this.readPin(this._options.doorOpenSwitchPin),
+            this.readPin(this._options.doorClosedSwitchPin),
+        )
+            .pipe(
+                map(([doorOpen, doorClosed]) => getStatus(doorOpen, doorClosed, this._status?.status)),
+                map<DOOR_STATUS, IGarageDoorStatus>((status) => ({ status })),
+                tap((status) => {
+                    if (this._status?.status != status.status) {
+                        this.status = status;
+                    }
+                }),
+            )
+            .toPromise();
     }
 
-    public setState(value: IGarageDoorStatus<writeStatus>): IGarageDoorStatus {
+    public setState(value: IGarageDoorStatus<UPDATE_DOOR_STATUS>): IGarageDoorStatus {
         let status: IGarageDoorStatus;
         switch (value.status) {
             case 'OPEN':
@@ -49,8 +72,6 @@ export class GarageDoorService {
                 return unsupportedWrite(value.status);
         }
 
-        setTimeout(() => (this.status = value), Math.random() * 5000);
-
         this.status = status;
         return status;
     }
@@ -58,5 +79,9 @@ export class GarageDoorService {
     private set status(value: IGarageDoorStatus) {
         this._status = value;
         this.events.emit(value);
+    }
+
+    private readPin(pin: number): Observable<boolean> {
+        return from(gpio.promise.read(pin) as Promise<boolean>).pipe(take(1));
     }
 }

@@ -8,7 +8,8 @@
         "build": "tsc",
         "lint": "eslint \"*/**/*.ts\"",
         "build:watch": "tsc --watch",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest",
+        "test:watch": "jest --watch"
     },
     "repository": {
         "type": "git",
@@ -23,5 +24,8 @@
     "dependencies": {
         "rpi-gpio": "^2.1.5",
         "rxjs": "^6.5.4"
+    },
+    "devDependencies": {
+        "jest": "^26.0.1"
     }
 }

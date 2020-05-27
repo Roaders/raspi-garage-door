@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IGarageDoorStatus, writeStatus } from '../../../../rpi-garage-door/src';
+import { IGarageDoorStatus, UPDATE_DOOR_STATUS } from '../../../../rpi-garage-door/src';
 import io from 'socket.io-client';
 import { DOOR_STATUS_UPDATES } from '../../../../shared';
 import { environment } from '../../environments/environment';
@@ -32,7 +32,9 @@ export class GarageDoorHttpService {
             let url = environment.updatesUrl;
             if (this.authTokenService.authToken != null) {
                 url = `${url}?token=${this.authTokenService.authToken.access_token}`;
+                console.log(`Added token: ${url}`);
             }
+            console.log(`creating socket ${url}`);
             socket = io(url);
             this._socket = socket;
 
@@ -42,8 +44,8 @@ export class GarageDoorHttpService {
         return this.updatesSubject;
     }
 
-    private setGarageState(status: writeStatus) {
-        const payload: IGarageDoorStatus<writeStatus> = {
+    private setGarageState(status: UPDATE_DOOR_STATUS) {
+        const payload: IGarageDoorStatus<UPDATE_DOOR_STATUS> = {
             status,
         };
 

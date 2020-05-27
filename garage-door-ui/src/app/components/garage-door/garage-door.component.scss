@@ -1,0 +1,39 @@
+
+@import "~bootstrap/scss/_functions";
+@import "~bootstrap/scss/_variables";
+
+h2{
+    color: $dark;
+}
+
+.button-container{
+    width: 80%;
+}
+
+.home-icon{
+    font-size: 10rem;
+}
+
+.container-closed{
+    & .home-icon{
+        color: theme-color("success");
+    }
+}
+
+.container-open{
+    & .home-icon{
+        color: theme-color("danger");
+    }
+}
+
+.container-unknown{
+    & .home-icon{
+        color: theme-color("warning");
+    }
+}
+
+.logout{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}

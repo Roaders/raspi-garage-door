@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { GarageDoorHttpService } from 'src/app/services';
+import { GarageDoorHttpService, AuthTokenService } from 'src/app/services';
 import { IGarageDoorStatus } from '../../../../../shared';
+import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'garage-door',
@@ -8,33 +10,42 @@ import { IGarageDoorStatus } from '../../../../../shared';
     styleUrls: ['./garage-door.component.scss'],
 })
 export class GarageDoorComponent implements OnInit {
-    constructor(private service: GarageDoorHttpService) {}
+    constructor(
+        private service: GarageDoorHttpService,
+        private tokenService: AuthTokenService,
+        private router: Router,
+    ) {}
 
-    private _statusError: string | undefined;
+    private _error: string | undefined;
 
-    public get statusError(): string | undefined {
-        return this._statusError;
+    public get error(): string | undefined {
+        return this._error;
     }
 
     public get showStatus(): boolean {
-        return this._status != null && this._statusError == null;
+        return this._status != null;
     }
 
     public get isLoading(): boolean {
-        return this._status == null && this._statusError == null;
+        return this._status == null && this._error == null;
     }
 
     public get canOpen(): boolean {
-        return this._status?.status != 'OPEN';
+        return !this.isLoading && this._status?.status != 'OPEN' && this._status?.status != 'OPENING';
     }
 
     public get canClose(): boolean {
-        return this._status?.status != 'CLOSED';
+        return !this.isLoading && this._status?.status != 'CLOSED' && this._status?.status != 'CLOSING';
+    }
+
+    public get lockIcon() {
+        return this._status?.status == 'CLOSED' ? faLock : faLockOpen;
     }
 
     private _status: IGarageDoorStatus | undefined;
 
     public get statusString(): string | undefined {
+        console.log(`get statusString ${this._status?.status}`);
         if (this._status == null) {
             return undefined;
         }
@@ -52,6 +63,23 @@ export class GarageDoorComponent implements OnInit {
             default:
                 return 'Unknown';
         }
+    }
+
+    public get statusStyle(): string {
+        switch (this._status?.status) {
+            case 'CLOSED':
+                return `container-closed`;
+            case 'OPEN':
+                return `container-open`;
+
+            default:
+                return 'container-unknown';
+        }
+    }
+
+    public logout() {
+        this.tokenService.authToken = undefined;
+        this.router.navigate(['login']);
     }
 
     public openDoor() {
@@ -77,17 +105,17 @@ export class GarageDoorComponent implements OnInit {
     }
 
     private reset() {
-        this._statusError = undefined;
+        this._error = undefined;
         this._status = undefined;
     }
 
     private onStatus(status: IGarageDoorStatus) {
         this._status = status;
-        this._statusError = undefined;
+        this._error = undefined;
     }
 
     private onError(error: any) {
         this._status = undefined;
-        this._statusError = error.message;
+        this._error = error.message;
     }
 }

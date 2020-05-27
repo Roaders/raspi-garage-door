@@ -1,4 +1,4 @@
-import { DOOR_STATUS } from '../contracts';
+import { DOOR_STATUS } from '../../../shared';
 
 export function getStatus(doorOpen: boolean, doorClosed: boolean, currentStatus?: DOOR_STATUS): DOOR_STATUS {
     if (doorOpen && doorClosed) {

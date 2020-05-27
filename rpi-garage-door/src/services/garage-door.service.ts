@@ -1,9 +1,10 @@
-import { IGarageDoorStatus, UPDATE_DOOR_STATUS, IGarageDoorOptions, DOOR_STATUS } from '../contracts';
+import { IGarageDoorStatus, UPDATE_DOOR_STATUS, DOOR_STATUS } from '../../../shared';
 import { AsyncIterableServiceFactory, AsyncIterableService } from './async-iterable.service';
 import gpio from 'rpi-gpio';
 import { combineLatest, from, Observable, fromEvent } from 'rxjs';
 import { take, map, tap, delay, mergeMap } from 'rxjs/operators';
 import { getStatus } from '../helpers/status-helper';
+import { IGarageDoorOptions } from '../contracts';
 
 function unsupportedWrite(state: never): IGarageDoorStatus {
     throw new Error(`Could not set door status to '${state}'`);

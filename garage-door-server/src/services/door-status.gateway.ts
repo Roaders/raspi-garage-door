@@ -1,7 +1,7 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { IGarageDoorStatus, GarageDoorService } from '../../../rpi-garage-door/src';
-import { DOOR_STATUS_UPDATES } from '../../../shared';
+import { GarageDoorService } from '../../../rpi-garage-door/src';
+import { DOOR_STATUS_UPDATES, IGarageDoorStatus } from '../../../shared';
 import { AuthService } from '../auth/';
 
 @WebSocketGateway()

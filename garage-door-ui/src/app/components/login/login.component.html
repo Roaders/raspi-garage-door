@@ -1,18 +1,20 @@
-<div>
+
+<h2>Login</h2>
+
+<div *ngIf="error != null" class="alert alert-danger">
     <span>Error: {{error}}</span>
 </div>
 
 <form (ngSubmit) = "login(username.value, password.value)">
-    <div>Login:</div>
-    <div>
-        <span>Username:</span>
-        <input name="username" id="username" #username type="text">
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <input class="form-control" name="username" id="username" #username type="text">
     </div>
-    <div>
-        <span>Password:</span>
-        <input name="password" id="password" #password type="password">
+    <div class="form-group">
+        <label for="password">Password:</label>
+        <input class="form-control" name="password" id="password" #password type="password">
     </div>
-    <div>
-        <input type = "submit" value = "submit">
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary" value = "Submit">
     </div>
 </form>

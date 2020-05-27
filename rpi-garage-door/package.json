@@ -21,9 +21,7 @@
     },
     "homepage": "https://github.com/Roaders/rpi-garage-door#readme",
     "dependencies": {
-        "rpi-gpio": "^2.1.5"
-    },
-    "devDependencies": {
-        "@types/rpi-gpio": "^2.1.0"
+        "rpi-gpio": "^2.1.5",
+        "rxjs": "^6.5.4"
     }
 }

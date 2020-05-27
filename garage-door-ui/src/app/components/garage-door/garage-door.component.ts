@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { IGarageDoorStatus } from '../../../../../rpi-garage-door/src';
 import { GarageDoorHttpService } from 'src/app/services';
+import { IGarageDoorStatus } from '../../../../../shared';
 
 @Component({
     selector: 'garage-door',

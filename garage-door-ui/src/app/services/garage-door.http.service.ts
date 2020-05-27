@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IGarageDoorStatus, UPDATE_DOOR_STATUS } from '../../../../rpi-garage-door/src';
+import { IGarageDoorStatus, UPDATE_DOOR_STATUS } from '../../../../shared';
 import io from 'socket.io-client';
 import { DOOR_STATUS_UPDATES } from '../../../../shared';
 import { environment } from '../../environments/environment';

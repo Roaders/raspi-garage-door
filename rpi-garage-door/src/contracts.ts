@@ -1,10 +1,3 @@
-export type UPDATE_DOOR_STATUS = 'OPEN' | 'CLOSED';
-export type DOOR_STATUS = UPDATE_DOOR_STATUS | 'OPENING' | 'CLOSING' | 'UNKNOWN';
-
-export interface IGarageDoorStatus<T extends UPDATE_DOOR_STATUS | DOOR_STATUS = DOOR_STATUS> {
-    readonly status: T;
-}
-
 export type MODE = 'mode_rpi' | 'mode_bcm';
 
 export interface IGarageDoorOptions {

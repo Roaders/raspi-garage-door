@@ -73,7 +73,9 @@ export class GarageDoorService {
                 return unsupportedWrite(value.status);
         }
 
-        this.pressButton();
+        if (this._status?.status != 'OPENING' && this._status?.status != 'CLOSING') {
+            this.pressButton();
+        }
 
         this.status = status;
         return status;

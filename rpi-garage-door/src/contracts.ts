@@ -38,4 +38,10 @@ export interface IGarageDoorOptions {
      * defaults to 2 seconds
      */
     stateChangeDelay: number;
+    /**
+     * some relays require false to be turned on.
+     * defaults to false
+     * setting this to true means that the relay pin will be set high most of the time and to press the button the pin will be set low
+     */
+    invertRelayControl: boolean;
 }

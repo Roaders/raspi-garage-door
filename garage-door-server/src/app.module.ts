@@ -29,7 +29,8 @@ if (existsSync(rootPath)) {
     providers: [
         {
             provide: GarageDoorService,
-            useFactory: (factory: AsyncIterableServiceFactory<IGarageDoorStatus>) => new GarageDoorService(factory),
+            useFactory: (factory: AsyncIterableServiceFactory<IGarageDoorStatus>) =>
+                new GarageDoorService(factory, { invertRelayControl: true }),
             inject: [AsyncIterableServiceFactory],
         },
         DoorStatusGateway,

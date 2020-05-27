@@ -16,6 +16,7 @@ const defaultOptions: IGarageDoorOptions = {
     doorOpenSwitchPin: 13,
     doorClosedSwitchPin: 15,
     stateChangeDelay: 2000,
+    invertRelayControl: false,
 };
 
 export class GarageDoorService {
@@ -29,7 +30,7 @@ export class GarageDoorService {
         gpio.setMode(this._options.pinAddressingMode);
         gpio.setup(this._options.doorOpenSwitchPin, 'in', 'both');
         gpio.setup(this._options.doorClosedSwitchPin, 'in', 'both');
-        gpio.setup(this._options.buttonPressRelayPin, 'high');
+        gpio.setup(this._options.buttonPressRelayPin, this._options.invertRelayControl ? 'high' : 'low');
         fromEvent(gpio, 'change')
             .pipe(
                 delay(this._options.stateChangeDelay),
@@ -84,10 +85,12 @@ export class GarageDoorService {
     }
 
     private pressButton() {
-        return from(gpio.promise.write(this._options.buttonPressRelayPin, false))
+        return from(gpio.promise.write(this._options.buttonPressRelayPin, !this._options.invertRelayControl))
             .pipe(
                 delay(this._options.buttonPressInterval),
-                mergeMap(() => from(gpio.promise.write(this._options.buttonPressRelayPin, true))),
+                mergeMap(() =>
+                    from(gpio.promise.write(this._options.buttonPressRelayPin, this._options.invertRelayControl)),
+                ),
             )
             .toPromise();
     }

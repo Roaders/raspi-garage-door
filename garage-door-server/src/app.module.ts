@@ -6,9 +6,10 @@ import { existsSync } from 'fs';
 import { AuthModule } from './auth';
 import { UsersModule } from './users/users.module';
 import chalk from 'chalk';
-import { GarageDoorService, IGarageDoorStatus } from '../../rpi-garage-door/src';
+import { GarageDoorService } from '../../rpi-garage-door/src';
 import { DoorStatusGateway } from './services';
 import { AsyncIterableServiceFactory } from '../../rpi-garage-door/src/services/async-iterable.service';
+import { IGarageDoorStatus } from '../../shared';
 
 const rootPath = join(__dirname, '../../', 'garage-door-ui');
 const imports = new Array<DynamicModule>();

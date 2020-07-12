@@ -13,16 +13,27 @@ export interface IGarageDoorOptions {
     pinAddressingMode: MODE;
     /**
      * pin to drive button press relay from
+     * In 2 button mode this drives the close door button
      * defaults to 11 (BCM 17)
      */
     buttonPressRelayPin: number;
     /**
-     * pin to attach door open switch to
+     * pin to drive open button press relay from
+     * defaults to 12 (BCM 17)
+     */
+    openButtonPressRelayPin: number;
+    /**
+     * Turns on 2 button mode if your garage door opener has an open and close button
+     * defaults to true
+     */
+    twoButtonMode: boolean;
+    /**
+     * pin to attach door open relay switch to
      * defaults to 13 (BCM 27)
      */
     doorOpenSwitchPin: number;
     /**
-     * pin to attach door close pin to
+     * pin to attach door close relay swith to
      * defaults to 15 (BCM 22)
      */
     doorClosedSwitchPin: number;

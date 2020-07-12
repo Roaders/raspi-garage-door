@@ -1,12 +1,26 @@
 
-<div>
-    <span>Status:</span>
-    <span *ngIf="showStatus">{{statusString}}</span>
-    <span *ngIf="isLoading">Loading...</span>
-    <span *ngIf="statusError != null">Error: {{statusError}}</span>
+<div [ngClass]="statusStyle">
+
+    <div *ngIf="error != null" class="alert alert-danger">
+        <span>Error: {{error}}</span>
+    </div>
+
+    <div class="text-center">
+        <fa-icon [icon]="lockIcon" class="home-icon"></fa-icon>
+    </div>
+
+    <h2 class="text-center pb-2">
+        <span *ngIf="showStatus">{{statusString}}</span>
+        <span *ngIf="isLoading">Updating...</span>
+    </h2>
+
+    <div class="button-container d-flex m-auto">
+        <button [disabled]="!canOpen" type="button" (click)="openDoor()" class="flex-fill m-1 btn btn-lg btn-primary">Open Door</button>
+        <button [disabled]="!canClose" type="button" (click)="closeDoor()" class="flex-fill m-1 btn btn-lg btn-primary">Close Door</button> 
+    </div>
+
 </div>
 
-<div>
-    <button [disabled]="!canOpen" type="button" (click)="openDoor()">Open Door</button>
-    <button [disabled]="!canClose" type="button" (click)="closeDoor()">Close Door</button> 
-</div>
+<div class="logout">
+    <button class="btn btn-secondary btn-sm" (click)="logout()">Logout</button>
+</div> 

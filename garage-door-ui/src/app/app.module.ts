@@ -10,10 +10,12 @@ import { AppRoutingModule } from './app-routing.module';
 import { AuthGuard } from './route-guards/auth.guard';
 import { LoggedInGuard } from './route-guards/logged-in.guard';
 import { GarageDoorComponent } from './components/garage-door/garage-door.component';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
     declarations: [AppComponent, LoginComponent, GarageDoorComponent],
-    imports: [BrowserModule, HttpClientModule, FormsModule, AppRoutingModule],
+    imports: [BrowserModule, CommonModule, HttpClientModule, FormsModule, AppRoutingModule, FontAwesomeModule],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
         AuthTokenService,

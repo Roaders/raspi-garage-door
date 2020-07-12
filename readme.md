@@ -1,5 +1,38 @@
 # RPI Garage Door
 
+## Install
+
+```
+git clone https://github.com/Roaders/rpi-garage-door.git
+cd rpi-garage-door
+npm install
+npm run build
+```
+
+### Create Users
+
+```
+npm run createUser
+```
+
+### Verify User
+
+```
+npm run checkUser
+```
+
+### Generate Secret for Jwt
+
+```
+npm run generateSecret
+```
+
+### Run server (not as a service)
+
+```
+npm run start-prod
+```
+
 ## Running as a service
 
 ### Get Status

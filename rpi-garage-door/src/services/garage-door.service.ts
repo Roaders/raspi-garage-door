@@ -14,6 +14,8 @@ const defaultOptions: IGarageDoorOptions = {
     buttonPressInterval: 1000,
     pinAddressingMode: 'mode_rpi',
     buttonPressRelayPin: 11,
+    openButtonPressRelayPin: 12,
+    twoButtonMode: true,
     doorOpenSwitchPin: 13,
     doorClosedSwitchPin: 15,
     stateChangeDelay: 2000,
@@ -32,6 +34,9 @@ export class GarageDoorService {
         gpio.setup(this._options.doorOpenSwitchPin, 'in', 'both');
         gpio.setup(this._options.doorClosedSwitchPin, 'in', 'both');
         gpio.setup(this._options.buttonPressRelayPin, this._options.invertRelayControl ? 'high' : 'low');
+        if (this._options.twoButtonMode) {
+            gpio.setup(this._options.openButtonPressRelayPin, this._options.invertRelayControl ? 'high' : 'low');
+        }
         fromEvent(gpio, 'change')
             .pipe(
                 delay(this._options.stateChangeDelay),
@@ -75,7 +80,7 @@ export class GarageDoorService {
         }
 
         if (this._status?.status != 'OPENING' && this._status?.status != 'CLOSING') {
-            this.pressButton();
+            this.pressButton(value);
         }
 
         this.status = status;
@@ -87,13 +92,19 @@ export class GarageDoorService {
         this.events.emit(value);
     }
 
-    private pressButton() {
-        return from(gpio.promise.write(this._options.buttonPressRelayPin, !this._options.invertRelayControl))
+    private pressButton(value: IGarageDoorStatus<UPDATE_DOOR_STATUS>) {
+        const targetPin =
+            this._options.twoButtonMode && value.status === 'OPEN'
+                ? this._options.openButtonPressRelayPin
+                : this._options.buttonPressRelayPin;
+
+        // Set relay to on
+        return from(gpio.promise.write(targetPin, !this._options.invertRelayControl))
             .pipe(
+                // wait for delay
                 delay(this._options.buttonPressInterval),
-                mergeMap(() =>
-                    from(gpio.promise.write(this._options.buttonPressRelayPin, this._options.invertRelayControl)),
-                ),
+                //set relay to off
+                mergeMap(() => from(gpio.promise.write(targetPin, this._options.invertRelayControl))),
             )
             .toPromise();
     }

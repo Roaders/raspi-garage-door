@@ -48,7 +48,6 @@ export class GarageDoorService {
         combineLatest(openPinPromise, closePinPromise)
             .pipe(mergeMap(() => from(this.getState())))
             .subscribe((state) => {
-                console.log(`UPDATE INITIAL STATE: ${JSON.stringify(state)}`);
                 this._status = state;
             });
     }
@@ -94,15 +93,11 @@ export class GarageDoorService {
         return from(this.getState()).pipe(
             tap((status) => {
                 if (this._status?.status != status.status) {
-                    console.log(`onStatusUpdate ${this._status?.status} => ${status.status}`);
                     if (this._status?.status === 'OPENING' && status.status === 'CLOSED') {
-                        console.log(`press open`);
                         this.pressButton('OPEN');
                     } else if (this._status?.status === 'CLOSING' && status.status === 'OPEN') {
-                        console.log(`press closed`);
                         this.pressButton('CLOSED');
                     } else {
-                        console.log(`update status`);
                         this.status = status;
                     }
                 }

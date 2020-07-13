@@ -45,7 +45,6 @@ export class GarageDoorComponent implements OnInit {
     private _status: IGarageDoorStatus | undefined;
 
     public get statusString(): string | undefined {
-        console.log(`get statusString ${this._status?.status}`);
         if (this._status == null) {
             return undefined;
         }

@@ -31,18 +31,26 @@ export class GarageDoorService {
         this._options = { ...defaultOptions, ...options };
 
         gpio.setMode(this._options.pinAddressingMode);
-        gpio.setup(this._options.doorOpenSwitchPin, 'in', 'both');
-        gpio.setup(this._options.doorClosedSwitchPin, 'in', 'both');
+        const openPinPromise = gpio.promise.setup(this._options.doorOpenSwitchPin, 'in', 'both');
+        const closePinPromise = gpio.promise.setup(this._options.doorClosedSwitchPin, 'in', 'both');
         gpio.setup(this._options.buttonPressRelayPin, this._options.invertRelayControl ? 'high' : 'low');
         if (this._options.twoButtonMode) {
             gpio.setup(this._options.openButtonPressRelayPin, this._options.invertRelayControl ? 'high' : 'low');
         }
+
         fromEvent(gpio, 'change')
             .pipe(
                 delay(this._options.stateChangeDelay),
-                mergeMap(() => from(this.getState())),
+                mergeMap(() => this.onStatusUpdate()),
             )
             .subscribe();
+
+        combineLatest(openPinPromise, closePinPromise)
+            .pipe(mergeMap(() => from(this.getState())))
+            .subscribe((state) => {
+                console.log(`UPDATE INITIAL STATE: ${JSON.stringify(state)}`);
+                this._status = state;
+            });
     }
 
     public readonly events: AsyncIterableService<IGarageDoorStatus>;
@@ -55,11 +63,6 @@ export class GarageDoorService {
             .pipe(
                 map(([doorOpen, doorClosed]) => getStatus(doorOpen, doorClosed, this._status?.status)),
                 map<DOOR_STATUS, IGarageDoorStatus>((status) => ({ status })),
-                tap((status) => {
-                    if (this._status?.status != status.status) {
-                        this.status = status;
-                    }
-                }),
             )
             .toPromise();
     }
@@ -80,11 +83,31 @@ export class GarageDoorService {
         }
 
         if (this._status?.status != 'OPENING' && this._status?.status != 'CLOSING') {
-            this.pressButton(value);
+            this.pressButton(value.status);
         }
 
         this.status = status;
         return status;
+    }
+
+    private onStatusUpdate() {
+        return from(this.getState()).pipe(
+            tap((status) => {
+                if (this._status?.status != status.status) {
+                    console.log(`onStatusUpdate ${this._status?.status} => ${status.status}`);
+                    if (this._status?.status === 'OPENING' && status.status === 'CLOSED') {
+                        console.log(`press open`);
+                        this.pressButton('OPEN');
+                    } else if (this._status?.status === 'CLOSING' && status.status === 'OPEN') {
+                        console.log(`press closed`);
+                        this.pressButton('CLOSED');
+                    } else {
+                        console.log(`update status`);
+                        this.status = status;
+                    }
+                }
+            }),
+        );
     }
 
     private set status(value: IGarageDoorStatus) {
@@ -92,9 +115,9 @@ export class GarageDoorService {
         this.events.emit(value);
     }
 
-    private pressButton(value: IGarageDoorStatus<UPDATE_DOOR_STATUS>) {
+    private pressButton(value: UPDATE_DOOR_STATUS) {
         const targetPin =
-            this._options.twoButtonMode && value.status === 'OPEN'
+            this._options.twoButtonMode && value === 'OPEN'
                 ? this._options.openButtonPressRelayPin
                 : this._options.buttonPressRelayPin;
 

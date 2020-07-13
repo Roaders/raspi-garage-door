@@ -12,19 +12,19 @@ npm run build
 ### Create Users
 
 ```
-npm run createUser
+npm run create-user
 ```
 
 ### Verify User
 
 ```
-npm run checkUser
+npm run check-user
 ```
 
 ### Generate Secret for Jwt
 
 ```
-npm run generateSecret
+npm run generate-secret
 ```
 
 ### Run server (not as a service)

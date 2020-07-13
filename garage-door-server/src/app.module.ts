@@ -30,8 +30,7 @@ if (existsSync(rootPath)) {
     providers: [
         {
             provide: GarageDoorService,
-            useFactory: (factory: AsyncIterableServiceFactory<IGarageDoorStatus>) =>
-                new GarageDoorService(factory, { doorTimeout: 5000 }),
+            useFactory: (factory: AsyncIterableServiceFactory<IGarageDoorStatus>) => new GarageDoorService(factory, {}),
             inject: [AsyncIterableServiceFactory],
         },
         DoorStatusGateway,

@@ -20,6 +20,7 @@ const defaultOptions: IGarageDoorOptions = {
     doorClosedSwitchPin: 15,
     stateChangeDelay: 2000,
     invertRelayControl: false,
+    doorTimeout: 30000,
 };
 
 export class GarageDoorService {
@@ -46,10 +47,8 @@ export class GarageDoorService {
             .subscribe();
 
         combineLatest(openPinPromise, closePinPromise)
-            .pipe(mergeMap(() => from(this.getState())))
-            .subscribe((state) => {
-                this._status = state;
-            });
+            .pipe(mergeMap(() => this.updateStatusFromPins()))
+            .subscribe();
     }
 
     public readonly events: AsyncIterableService<IGarageDoorStatus>;
@@ -89,9 +88,23 @@ export class GarageDoorService {
         return status;
     }
 
+    private updateStatusFromPins() {
+        return from(this.getState()).pipe(tap((state) => (this.status = state)));
+    }
+
     private onStatusUpdate() {
         return from(this.getState()).pipe(
             tap((status) => {
+                if (this._doorMovementTimeoutReference != null) {
+                    switch (status.status) {
+                        case 'CLOSED':
+                        case 'OPEN':
+                            clearTimeout(this._doorMovementTimeoutReference);
+                            this._doorMovementTimeoutReference = undefined;
+                            break;
+                    }
+                }
+
                 if (this._status?.status != status.status) {
                     if (this._status?.status === 'OPENING' && status.status === 'CLOSED') {
                         this.pressButton('OPEN');
@@ -123,9 +136,24 @@ export class GarageDoorService {
                 delay(this._options.buttonPressInterval),
                 //set relay to off
                 mergeMap(() => from(gpio.promise.write(targetPin, this._options.invertRelayControl))),
+                tap(() => {
+                    this._doorMovementTimeoutReference = setTimeout(
+                        () => this.handleTimeout(),
+                        this._options.doorTimeout,
+                    );
+                }),
             )
             .toPromise();
     }
+
+    private handleTimeout() {
+        this._doorMovementTimeoutReference = undefined;
+        this._status = undefined;
+
+        this.updateStatusFromPins().subscribe();
+    }
+
+    private _doorMovementTimeoutReference: NodeJS.Timeout | undefined;
 
     private readPin(pin: number): Observable<boolean> {
         return from(gpio.promise.read(pin) as Promise<boolean>).pipe(take(1));

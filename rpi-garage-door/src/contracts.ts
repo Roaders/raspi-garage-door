@@ -48,4 +48,9 @@ export interface IGarageDoorOptions {
      * setting this to true means that the relay pin will be set high most of the time and to press the button the pin will be set low
      */
     invertRelayControl: boolean;
+    /**
+     * The length of time (in ms) to wait before marking the door state as Unkown after a button press
+     * Defaults to 30,000 (30 seconds)
+     */
+    doorTimeout: number;
 }

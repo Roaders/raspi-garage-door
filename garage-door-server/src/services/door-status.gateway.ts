@@ -31,7 +31,7 @@ export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconne
         console.log(`Client ${client.id} disconnected (${Object.keys(this.clients).length})`);
     }
 
-    public updateStatus(status: IGarageDoorStatus) {
+    private updateStatus(status: IGarageDoorStatus) {
         this.server?.emit(DOOR_STATUS_UPDATES, status);
     }
 

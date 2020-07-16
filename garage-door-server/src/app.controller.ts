@@ -1,11 +1,25 @@
-import { Controller, Get, UseGuards, Request as RequestParam, Post, Put } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request as RequestParam, Post, Put, Query } from '@nestjs/common';
 import { LocalAuthGuard, AuthService, JwtAuthGuard, ExchangeTokenAuthGuard } from './auth';
 import { Request } from 'express';
 import { GarageDoorService } from '../../rpi-garage-door/src';
+import { ImagesService } from './services';
 
 @Controller('api')
 export class AppController {
-    constructor(private authService: AuthService, private garageDoorService: GarageDoorService) {}
+    constructor(
+        private authService: AuthService,
+        private garageDoorService: GarageDoorService,
+        private imagesService: ImagesService,
+    ) {}
+
+    @Get('/garage/image')
+    @UseGuards(JwtAuthGuard)
+    getImages(@Query('maxCount') maxCount?: string, @Query('before') before?: string) {
+        return this.imagesService.getImages(
+            maxCount != null ? parseInt(maxCount) : undefined,
+            before != null ? parseInt(before) : undefined,
+        );
+    }
 
     @Get('/garage/door')
     @UseGuards(JwtAuthGuard)

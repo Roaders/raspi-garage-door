@@ -12,6 +12,7 @@ export class AuthTokenService {
 
     public set authToken(value: IAuthToken | undefined) {
         if (value != null) {
+            console.log(`Updating auth token`);
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(value));
         } else {
             localStorage.removeItem(LOCAL_STORAGE_KEY);

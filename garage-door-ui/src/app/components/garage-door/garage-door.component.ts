@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GarageDoorHttpService, AuthTokenService } from 'src/app/services';
-import { IGarageDoorStatus } from '../../../../../shared';
+import { IGarageDoorStatus, IStatusChangeImage } from '../../../../../shared';
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
 
@@ -14,7 +14,11 @@ export class GarageDoorComponent implements OnInit {
         private service: GarageDoorHttpService,
         private tokenService: AuthTokenService,
         private router: Router,
-    ) {}
+    ) {
+        service.getLatestImage().subscribe((images) => (this.latestImage = images[0]));
+    }
+
+    public latestImage: IStatusChangeImage | undefined;
 
     private _error: string | undefined;
 

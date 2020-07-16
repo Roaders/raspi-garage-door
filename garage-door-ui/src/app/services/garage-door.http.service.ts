@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IGarageDoorStatus, UPDATE_DOOR_STATUS } from '../../../../shared';
+import { IGarageDoorStatus, UPDATE_DOOR_STATUS, IStatusChangeImage } from '../../../../shared';
 import io from 'socket.io-client';
 import { DOOR_STATUS_UPDATES } from '../../../../shared';
 import { environment } from '../../environments/environment';
@@ -13,6 +13,10 @@ export class GarageDoorHttpService {
     private updatesSubject = new Subject<IGarageDoorStatus>();
 
     constructor(private http: HttpClient, private authTokenService: AuthTokenService) {}
+
+    public getLatestImage() {
+        return this.http.get<IStatusChangeImage[]>('api/garage/image?maxCount=1');
+    }
 
     public loadStatus() {
         return this.http.get<IGarageDoorStatus>('api/garage/door');
@@ -32,7 +36,6 @@ export class GarageDoorHttpService {
             let url = environment.updatesUrl;
             if (this.authTokenService.authToken != null) {
                 url = `${url}?token=${this.authTokenService.authToken.access_token}`;
-                console.log(`Added token: ${url}`);
             }
             console.log(`creating socket ${url}`);
             socket = io(url);

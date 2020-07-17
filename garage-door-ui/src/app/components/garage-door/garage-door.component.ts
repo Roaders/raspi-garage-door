@@ -96,10 +96,12 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.service.statusUpdatesStream().subscribe((event) => {
-            console.log(`STREAM UPDATE: ${event.status}`);
-            this.onStatus(event);
-        });
+        this.service.statusUpdatesStream().subscribe(
+            (event) => {
+                this.onStatus(event);
+            },
+            (error) => console.log(`GarageDoorComponent ngOnInit: Stream Error: ${error}`),
+        );
         this.loadStatus();
     }
 

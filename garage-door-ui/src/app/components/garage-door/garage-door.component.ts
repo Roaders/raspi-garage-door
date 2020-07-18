@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GarageDoorHttpService, AuthTokenService } from 'src/app/services';
-import { IGarageDoorStatus, IStatusChangeImage } from '../../../../../shared';
-import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
+import { IGarageDoorStatus } from '../../../../../shared';
 import { Router } from '@angular/router';
+import { getStatusStyle, getLockIcon } from 'src/app/helpers';
 
 @Component({
     selector: 'garage-door',
@@ -14,11 +14,7 @@ export class GarageDoorComponent implements OnInit {
         private service: GarageDoorHttpService,
         private tokenService: AuthTokenService,
         private router: Router,
-    ) {
-        service.getLatestImage().subscribe((images) => (this.latestImage = images[0]));
-    }
-
-    public latestImage: IStatusChangeImage | undefined;
+    ) {}
 
     private _error: string | undefined;
 
@@ -43,7 +39,7 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public get lockIcon() {
-        return this._status?.status == 'CLOSED' ? faLock : faLockOpen;
+        return getLockIcon(this._status?.status);
     }
 
     private _status: IGarageDoorStatus | undefined;
@@ -69,15 +65,7 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public get statusStyle(): string {
-        switch (this._status?.status) {
-            case 'CLOSED':
-                return `container-closed`;
-            case 'OPEN':
-                return `container-open`;
-
-            default:
-                return 'container-unknown';
-        }
+        return getStatusStyle(this._status?.status);
     }
 
     public logout() {

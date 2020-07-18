@@ -1,0 +1,28 @@
+
+<div>
+    <div *ngIf="error != null" class="alert alert-danger">
+        <span>Error: {{error}}</span>
+    </div>
+
+    <div class="align-middle">
+        <button [disabled]="takingPicture" class="btn btn-primary btn-sm mr-2" (click)="takePicture()">Take New Picture</button>
+        <span *ngIf="takingPicture" class="spinner-border text-primary mr-2"></span>
+    </div>
+
+    <div *ngFor="let update of statusUpdates" [ngClass]="getStatusStyle(update)" class="mb-2">
+        <h5 class="d-flex justify-content-between">
+            <div class="d-inline">{{getTimeStamp(update)}}</div>
+            <div class="d-inline">
+                <fa-icon [icon]="getIcon(update)" class="home-icon"></fa-icon>
+                {{getStatus(update)}}
+            </div>
+        </h5>
+
+        <img class="w-100" [src]="getImagePath(update)">
+    </div>
+
+    <div class="align-middle">
+        <button [disabled]="allLoaded || loadingMore" class="btn btn-primary btn-sm mr-2" (click)="loadMore()">Load More</button>
+        <span *ngIf="loadingMore" class="spinner-border text-primary mr-2"></span>
+    </div>
+</div>

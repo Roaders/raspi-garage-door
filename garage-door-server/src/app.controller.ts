@@ -21,6 +21,12 @@ export class AppController {
         );
     }
 
+    @Get('/garage/image/newImage')
+    @UseGuards(JwtAuthGuard)
+    getNewImage() {
+        return this.imagesService.newImage();
+    }
+
     @Get('/garage/door')
     @UseGuards(JwtAuthGuard)
     getDoorStatus() {

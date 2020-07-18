@@ -20,6 +20,14 @@ export class GarageDoorHttpService {
         return this.http.get<IStatusChangeImage[]>('api/garage/image?maxCount=1');
     }
 
+    public getImages(before: number) {
+        return this.http.get<IStatusChangeImage[]>(`api/garage/image?maxCount=5&before=${before}`);
+    }
+
+    public takePicture() {
+        return this.http.get<IStatusChangeImage>(`api/garage/image/newImage`);
+    }
+
     public loadStatus() {
         return this.http.get<IGarageDoorStatus>('api/garage/door');
     }

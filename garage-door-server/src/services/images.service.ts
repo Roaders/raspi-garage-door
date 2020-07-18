@@ -2,7 +2,7 @@ import { Injectable, Optional } from '@nestjs/common';
 import { IGarageDoorStatus, DOOR_STATUS, isDefined, IStatusChangeImage } from '../../../shared';
 import { GarageDoorService } from '../../../rpi-garage-door/src';
 import { Observable, from, defer, Subject, empty, of } from 'rxjs';
-import { mergeMap, catchError, map } from 'rxjs/operators';
+import { mergeMap, catchError, map, distinctUntilKeyChanged, filter } from 'rxjs/operators';
 import { PiCameraFactory } from 'src/factory';
 import { promises as fsPromises } from 'fs';
 import { createImageDTO } from '../helpers';
@@ -17,6 +17,15 @@ export class ImagesService {
         this.listenForEvents();
 
         this.startStream().subscribe();
+    }
+
+    public newImage(): Observable<IStatusChangeImage> {
+        return from(this.garageDoorService.getState()).pipe(
+            mergeMap((state) => this.snap(state)),
+            map((imageName) => imageFileNameRegExp.exec(imageName)),
+            map(createImageDTO),
+            filter(isDefined),
+        );
     }
 
     public getImages(maxCount = 10, before?: number): Observable<IStatusChangeImage[]> {
@@ -40,6 +49,7 @@ export class ImagesService {
 
     private startStream(): Observable<string> {
         return this.statusSubject.pipe(
+            distinctUntilKeyChanged('status'),
             mergeMap((status) => this.onStatusUpdate(status), 1),
             catchError((e) => {
                 console.log(`Error taking photo: ${e}`);

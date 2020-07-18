@@ -14,24 +14,6 @@ h2{
     font-size: 10rem;
 }
 
-.container-closed{
-    & .home-icon{
-        color: theme-color("success");
-    }
-}
-
-.container-open{
-    & .home-icon{
-        color: theme-color("danger");
-    }
-}
-
-.container-unknown{
-    & .home-icon{
-        color: theme-color("warning");
-    }
-}
-
 .logout{
     position: absolute;
     top: 5px;

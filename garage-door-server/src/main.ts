@@ -18,6 +18,11 @@ async function bootstrap() {
     const port = getPort(serverConfig);
     const app = await NestFactory.create(AppModule, { httpsOptions });
 
+    const useStaticAssets = app.getHttpAdapter().useStaticAssets?.bind(app.getHttpAdapter());
+    if (serverConfig.imagePath != null && useStaticAssets != null) {
+        useStaticAssets(serverConfig.imagePath, { prefix: '/images/' });
+    }
+
     await app.listen(port);
 
     if (httpsOptions) {

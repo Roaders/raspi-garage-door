@@ -69,7 +69,8 @@ export class ImagesService {
         }
 
         return defer(() => {
-            return from(cameraFactory.create(`${Date.now()}_${status.status}.jpg`).snap());
+            const fileName = `${Date.now()}_${status.status}.jpg`;
+            return from(cameraFactory.create(fileName).snap()).pipe(map(() => fileName));
         });
     }
 

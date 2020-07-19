@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IGarageDoorStatus, UPDATE_DOOR_STATUS, IStatusChangeImage } from '../../../../shared';
+import { IGarageDoorStatus, UPDATE_DOOR_STATUS, IStatusChangeImage, DOOR_IMAGE_UPDATES } from '../../../../shared';
 import io from 'socket.io-client';
 import { DOOR_STATUS_UPDATES } from '../../../../shared';
 import { environment } from '../../environments/environment';
@@ -10,7 +10,8 @@ import { AuthTokenService } from './auth-token.service';
 @Injectable()
 export class GarageDoorHttpService {
     private _socket: SocketIOClient.Socket | undefined;
-    private updatesSubject = new Subject<IGarageDoorStatus>();
+    private doorStatusSubject = new Subject<IGarageDoorStatus>();
+    private doorImageSubject = new Subject<IStatusChangeImage>();
 
     constructor(private http: HttpClient, private authTokenService: AuthTokenService) {
         authTokenService.tokenStream.subscribe(() => this.onNewToken());
@@ -43,7 +44,13 @@ export class GarageDoorHttpService {
     public statusUpdatesStream() {
         this.createSocket();
 
-        return this.updatesSubject;
+        return this.doorStatusSubject;
+    }
+
+    public imageUpdatesStream() {
+        this.createSocket();
+
+        return this.doorImageSubject;
     }
 
     private onNewToken() {
@@ -72,7 +79,8 @@ export class GarageDoorHttpService {
                 console.log(`GarageDoorHttpService statusUpdatesStream: SOCKET CONNECTED`);
             });
 
-            socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => this.updatesSubject.next(update));
+            socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => this.doorStatusSubject.next(update));
+            socket.on(DOOR_IMAGE_UPDATES, (update: IStatusChangeImage) => this.doorImageSubject.next(update));
 
             socket.on('disconnect ', () => console.log(`GarageDoorHttpService statusUpdatesStream: disconnect`));
             socket.on('error', (error: any) =>

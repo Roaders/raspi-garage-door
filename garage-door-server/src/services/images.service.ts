@@ -15,10 +15,16 @@ export class ImagesService {
 
     private _snapInProgress: Observable<string> | undefined;
 
+    private _snapSubject = new Subject<IStatusChangeImage>();
+
+    public get snapStream() {
+        return this._snapSubject;
+    }
+
     constructor(private garageDoorService: GarageDoorService, @Optional() private cameraFactory?: PiCameraFactory) {
         this.listenForEvents();
 
-        this.startStream().subscribe();
+        this.startStream().subscribe(this._snapSubject);
     }
 
     public newImage(): Observable<IStatusChangeImage> {
@@ -49,10 +55,13 @@ export class ImagesService {
         );
     }
 
-    private startStream(): Observable<string> {
+    private startStream(): Observable<IStatusChangeImage> {
         return this.statusSubject.pipe(
             distinctUntilKeyChanged('status'),
             mergeMap((status) => this.onStatusUpdate(status), 1),
+            map((imageName) => imageFileNameRegExp.exec(imageName)),
+            map(createImageDTO),
+            filter(isDefined),
             catchError((e) => {
                 console.log(`Error taking photo: ${e}`);
                 return this.startStream();

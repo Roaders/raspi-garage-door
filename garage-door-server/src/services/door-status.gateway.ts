@@ -1,12 +1,17 @@
 import { WebSocketGateway, WebSocketServer, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { GarageDoorService } from '../../../rpi-garage-door/src';
-import { DOOR_STATUS_UPDATES, IGarageDoorStatus } from '../../../shared';
+import { DOOR_STATUS_UPDATES, DOOR_IMAGE_UPDATES } from '../../../shared';
 import { AuthService } from '../auth/';
+import { ImagesService } from './images.service';
 
 @WebSocketGateway()
 export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconnect {
-    constructor(private garageDoorService: GarageDoorService, private authService: AuthService) {}
+    constructor(
+        private garageDoorService: GarageDoorService,
+        private imagesService: ImagesService,
+        private authService: AuthService,
+    ) {}
 
     private clients: { [key: string]: string } = {};
     private _listening = false;
@@ -31,17 +36,16 @@ export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconne
         console.log(`Client ${client.id} disconnected (${Object.keys(this.clients).length})`);
     }
 
-    private updateStatus(status: IGarageDoorStatus) {
-        this.server?.emit(DOOR_STATUS_UPDATES, status);
-    }
-
     private async listenForEvents() {
         if (!this._listening) {
             this._listening = true;
+
             for await (const event of this.garageDoorService.events) {
                 this._listening = true;
-                this.updateStatus(event);
+                this.server?.emit(DOOR_STATUS_UPDATES, event);
             }
+
+            this.imagesService.snapStream.subscribe((image) => this.server?.emit(DOOR_IMAGE_UPDATES, image));
         }
     }
 }

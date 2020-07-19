@@ -24,22 +24,23 @@ export class UsersService {
     }
 
     public async findFromRefreshToken(refreshToken: string): Promise<IUser | undefined> {
-        console.log(`findFromRefreshToken: ${refreshToken}`);
         const tokensPath = join(__dirname, '../../../../', 'userTokens.json');
 
         let tokens: IUserToken[];
 
         if (existsSync(tokensPath)) {
-            console.log(`Loading tokens from '${tokensPath}'`);
-
             tokens = JSON.parse((await promises.readFile(tokensPath)).toString());
         } else {
-            console.log(chalk.red(`Tokens file not found. Exiting.`));
+            console.log(chalk.red(`findFromRefreshToken: Tokens file not found. Exiting.`));
             return;
         }
 
-        return tokens
+        const user: IUser | undefined = tokens
             .filter((token) => token.refresh_token === refreshToken)
             .map((token) => ({ username: token.username }))[0];
+
+        console.log(`findFromRefreshToken: ${refreshToken.substr(-5)} user found: ${user?.username}`);
+
+        return user;
     }
 }

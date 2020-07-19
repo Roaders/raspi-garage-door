@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GarageDoorHttpService, AuthTokenService } from 'src/app/services';
 import { IGarageDoorStatus } from '../../../../../shared';
-import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
 import { Router } from '@angular/router';
+import { getStatusStyle, getLockIcon } from 'src/app/helpers';
 
 @Component({
     selector: 'garage-door',
@@ -39,7 +39,7 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public get lockIcon() {
-        return this._status?.status == 'CLOSED' ? faLock : faLockOpen;
+        return getLockIcon(this._status?.status);
     }
 
     private _status: IGarageDoorStatus | undefined;
@@ -65,15 +65,7 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public get statusStyle(): string {
-        switch (this._status?.status) {
-            case 'CLOSED':
-                return `container-closed`;
-            case 'OPEN':
-                return `container-open`;
-
-            default:
-                return 'container-unknown';
-        }
+        return getStatusStyle(this._status?.status);
     }
 
     public logout() {
@@ -92,10 +84,10 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public ngOnInit(): void {
-        this.service.statusUpdatesStream().subscribe((event) => {
-            console.log(`STREAM UPDATE: ${event.status}`);
-            this.onStatus(event);
-        });
+        this.service.statusUpdatesStream().subscribe(
+            (event) => this.onStatus(event),
+            (error) => console.log(`GarageDoorComponent ngOnInit: Stream Error: ${error}`),
+        );
         this.loadStatus();
     }
 

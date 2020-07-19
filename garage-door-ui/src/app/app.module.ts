@@ -12,9 +12,10 @@ import { LoggedInGuard } from './route-guards/logged-in.guard';
 import { GarageDoorComponent } from './components/garage-door/garage-door.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
+import { HistoryComponent } from './components/history/history.component';
 
 @NgModule({
-    declarations: [AppComponent, LoginComponent, GarageDoorComponent],
+    declarations: [AppComponent, LoginComponent, GarageDoorComponent, HistoryComponent],
     imports: [BrowserModule, CommonModule, HttpClientModule, FormsModule, AppRoutingModule, FontAwesomeModule],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },

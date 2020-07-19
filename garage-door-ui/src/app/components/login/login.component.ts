@@ -21,14 +21,12 @@ export class LoginComponent {
         this.http
             .post<IAuthToken>('api/login', { username, password })
             .subscribe(
-                (response) => {
+                () => {
                     this._error = undefined;
-                    console.log(`LOGIN received: ${JSON.stringify(response)}`);
                     this.router.navigate(['']);
                 },
                 (error) => {
                     this._error = error.message;
-                    console.log;
                 },
             );
     }

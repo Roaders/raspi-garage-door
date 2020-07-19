@@ -1,9 +1,12 @@
+require('dotenv').config();
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import chalk from 'chalk';
-import { getSSLConfig, getPort } from './helpers';
+import { getSSLConfig, getPort, parseConfig } from './helpers';
 
-const httpsOptions = getSSLConfig();
+const serverConfig = parseConfig(process.env);
+const httpsOptions = getSSLConfig(serverConfig);
 
 if (httpsOptions != null) {
     console.log(`Configuring HTTPS.`);
@@ -12,8 +15,13 @@ if (httpsOptions != null) {
 }
 
 async function bootstrap() {
-    const port = getPort();
+    const port = getPort(serverConfig);
     const app = await NestFactory.create(AppModule, { httpsOptions });
+
+    const useStaticAssets = app.getHttpAdapter().useStaticAssets?.bind(app.getHttpAdapter());
+    if (serverConfig.imagePath != null && useStaticAssets != null) {
+        useStaticAssets(serverConfig.imagePath, { prefix: '/images/' });
+    }
 
     await app.listen(port);
 

@@ -3,7 +3,6 @@ export class AsyncIterableService<T> implements AsyncIterable<T> {
     private _nextPromise: Promise<IteratorResult<T>> | undefined;
 
     [Symbol.asyncIterator](): AsyncIterator<T> {
-        console.log(`setup up async iterator`);
         return {
             next: () => {
                 let promise = this._nextPromise;

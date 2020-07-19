@@ -11,10 +11,24 @@ export interface IServerConfig {
     jwtSecret?: string;
     port?: number;
     sslPort?: number;
+    imagePath?: string;
+    invertRelayControl?: boolean;
 }
+
+type MapConfig<T> = {
+    [P in keyof T]?: NonNullable<T[P]> extends string | number ? NonNullable<T[P]> : unknown;
+};
+
+export type UntypedServerConfig = MapConfig<Required<IServerConfig>>;
 
 export interface IUser {
     username: string;
+}
+
+export interface IStatusChangeImage {
+    name: string;
+    status: DOOR_STATUS;
+    timestamp: number;
 }
 
 export interface IUserToken extends IUser, IRefreshToken {}
@@ -50,4 +64,8 @@ export function isAuthResponse(value: any): value is IAuthToken {
 export function isIUser(value: any): value is IUser {
     const user = value as IUser;
     return user != null && typeof user.username === 'string';
+}
+
+export function isDefined<T>(value: T | undefined | null): value is T {
+    return value != null;
 }

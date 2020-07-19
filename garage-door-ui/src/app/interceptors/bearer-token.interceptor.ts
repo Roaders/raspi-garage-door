@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { tap, catchError, mergeMap } from 'rxjs/operators';
+import { tap, catchError, mergeMap, shareReplay } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpResponse, HttpErrorResponse, HttpClient } from '@angular/common/http';
 import { HttpRequest } from '@angular/common/http';
@@ -19,6 +19,8 @@ const exchangeUrl = 'api/exchangeToken';
 
 @Injectable()
 export class AuthHttpInterceptor implements HttpInterceptor {
+    private _exchangeTokenStream: Observable<IAuthToken> | undefined;
+
     constructor(private authTokenService: AuthTokenService, private router: Router, private http: HttpClient) {}
 
     intercept<T>(request: HttpRequest<T>, next: HttpHandler): Observable<HttpEvent<T>> {
@@ -51,14 +53,24 @@ export class AuthHttpInterceptor implements HttpInterceptor {
 
     private exchangeToken<T>(error: any, request: HttpRequest<T>, next: HttpHandler) {
         if (isAuthError(error) && request.url != exchangeUrl && this.authTokenService.authToken != null) {
-            return this.http.get<IAuthToken>(exchangeUrl).pipe(
+            return this.createExchangeTokenStream().pipe(
                 mergeMap(() => {
+                    this._exchangeTokenStream = undefined;
                     return next.handle(this.addBearerToken(request)) as Observable<HttpEvent<T>>;
                 }),
             );
         } else {
             throw error;
         }
+    }
+
+    private createExchangeTokenStream(): Observable<IAuthToken> {
+        if (this._exchangeTokenStream != null) {
+            return this._exchangeTokenStream;
+        }
+
+        this._exchangeTokenStream = this.http.get<IAuthToken>(exchangeUrl).pipe(shareReplay(1));
+        return this._exchangeTokenStream;
     }
 
     private navigateToLogin(error: any) {

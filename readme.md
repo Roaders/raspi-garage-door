@@ -50,6 +50,12 @@ sudo systemctl stop garage-door
 sudo systemctl start garage-door
 ```
 
+### Logs
+
+```bash
+journalctl -u garage-door
+```
+
 ### Setup
 
 Create `/etc/systemd/system/garage-door.service`:

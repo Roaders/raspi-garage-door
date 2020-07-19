@@ -24,7 +24,9 @@ export class ImagesService {
     constructor(private garageDoorService: GarageDoorService, @Optional() private cameraFactory?: PiCameraFactory) {
         this.listenForEvents();
 
-        this.startStream().subscribe(this._snapSubject);
+        this.startStream()
+            .pipe(tap((image) => console.log(`ImagesService sending image to _snapSubject: ${image.name} `)))
+            .subscribe(this._snapSubject);
     }
 
     public newImage(): Observable<IStatusChangeImage> {

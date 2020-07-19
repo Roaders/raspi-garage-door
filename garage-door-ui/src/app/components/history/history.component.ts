@@ -13,8 +13,11 @@ export class HistoryComponent implements OnInit {
     constructor(private service: GarageDoorHttpService) {}
 
     ngOnInit(): void {
+        console.log(`HistoryComponent.ngOnInit subscribing to this.service.imageUpdatesStream()`);
+
         this.service.imageUpdatesStream().subscribe(
             (image) => {
+                console.log(`HistoryComponent.ngOnInit IMAGE UPDAE: ${image.name}`);
                 this.addImage(image);
             },
             (error) => console.log(`HistoryComponent ngOnInit: Stream Error: ${error}`),

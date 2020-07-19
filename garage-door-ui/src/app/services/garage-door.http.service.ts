@@ -79,6 +79,8 @@ export class GarageDoorHttpService {
                 console.log(`GarageDoorHttpService statusUpdatesStream: SOCKET CONNECTED`);
             });
 
+            console.log(`GarageDoorHttpService.createSocket subscribing to ${DOOR_IMAGE_UPDATES}`);
+
             socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => this.doorStatusSubject.next(update));
             socket.on(DOOR_IMAGE_UPDATES, (update: IStatusChangeImage) => this.doorImageSubject.next(update));
 

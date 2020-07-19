@@ -40,12 +40,17 @@ export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconne
         if (!this._listening) {
             this._listening = true;
 
+            console.log(`DoorStatusGateway.listenForEvents`);
+
             for await (const event of this.garageDoorService.events) {
                 this._listening = true;
                 this.server?.emit(DOOR_STATUS_UPDATES, event);
             }
 
-            this.imagesService.snapStream.subscribe((image) => this.server?.emit(DOOR_IMAGE_UPDATES, image));
+            this.imagesService.snapStream.subscribe((image) => {
+                console.log(`DoorStatusGateway.listenForEvents: ${image.name} => ${DOOR_IMAGE_UPDATES}`);
+                this.server?.emit(DOOR_IMAGE_UPDATES, image);
+            });
         }
     }
 }

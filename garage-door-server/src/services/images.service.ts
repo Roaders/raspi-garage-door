@@ -89,10 +89,6 @@ export class ImagesService {
             return from(cameraFactory.create(fileName).snap()).pipe(
                 tap(() => (this._snapInProgress = undefined)),
                 map(() => fileName),
-                catchError(() => {
-                    this._snapInProgress = undefined;
-                    return of(fileName);
-                }),
             );
         }).pipe(shareReplay(1));
 

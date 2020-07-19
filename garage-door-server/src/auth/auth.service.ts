@@ -13,7 +13,11 @@ import { verify } from 'jsonwebtoken';
 export class AuthService {
     constructor(private usersService: UsersService, private jwtService: JwtService) {}
 
-    public validateToken(token: string) {
+    public validateToken(token?: string) {
+        if (token == null) {
+            throw new Error(`No token passed to AuthService.validateToken`);
+        }
+
         try {
             return verify(token, jwtConstants.secret);
         } catch (e) {

@@ -11,22 +11,20 @@ const imageFileNameRegExp = /^(\d+)_(\w+).jpg$/;
 
 @Injectable()
 export class ImagesService {
-    private readonly statusSubject = new Subject<IGarageDoorStatus<DOOR_STATUS>>();
+    private readonly _statusSubject = new Subject<IGarageDoorStatus<DOOR_STATUS>>();
 
     private _snapInProgress: Observable<string> | undefined;
 
     private readonly _snapSubject = new Subject<IStatusChangeImage>();
 
     public get snapStream() {
-        return this._snapSubject;
+        return this._snapSubject.asObservable();
     }
 
     constructor(private garageDoorService: GarageDoorService, @Optional() private cameraFactory?: PiCameraFactory) {
         this.listenForEvents();
 
-        this.startStream()
-            .pipe(tap((image) => console.log(`ImagesService sending image to _snapSubject: ${image.name} `)))
-            .subscribe((image) => this._snapSubject.next(image));
+        this.startStream().subscribe((image) => this._snapSubject.next(image));
     }
 
     public newImage(): Observable<IStatusChangeImage> {
@@ -59,7 +57,7 @@ export class ImagesService {
     }
 
     private startStream(): Observable<IStatusChangeImage> {
-        return this.statusSubject.pipe(
+        return this._statusSubject.pipe(
             distinctUntilKeyChanged('status'),
             mergeMap((status) => this.onStatusUpdate(status), 1),
             map((imageName) => imageFileNameRegExp.exec(imageName)),
@@ -91,6 +89,10 @@ export class ImagesService {
             return from(cameraFactory.create(fileName).snap()).pipe(
                 tap(() => (this._snapInProgress = undefined)),
                 map(() => fileName),
+                catchError(() => {
+                    this._snapInProgress = undefined;
+                    return of(fileName);
+                }),
             );
         }).pipe(shareReplay(1));
 
@@ -101,7 +103,7 @@ export class ImagesService {
 
     private async listenForEvents() {
         for await (const event of this.garageDoorService.events) {
-            this.statusSubject.next(event);
+            this._statusSubject.next(event);
         }
     }
 }

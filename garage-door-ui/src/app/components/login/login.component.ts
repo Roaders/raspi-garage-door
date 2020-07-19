@@ -27,7 +27,6 @@ export class LoginComponent {
                 },
                 (error) => {
                     this._error = error.message;
-                    console.log;
                 },
             );
     }

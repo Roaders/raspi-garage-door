@@ -33,6 +33,7 @@ export class ImagesService {
             map((imageName) => imageFileNameRegExp.exec(imageName)),
             map(createImageDTO),
             filter(isDefined),
+            tap((image) => this._snapSubject.next(image)),
         );
     }
 

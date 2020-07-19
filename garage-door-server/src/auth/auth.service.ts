@@ -17,7 +17,7 @@ export class AuthService {
         try {
             return verify(token, jwtConstants.secret);
         } catch (e) {
-            console.log(`ERROR: ${e}`);
+            console.log(`AuthService.validateToken ${token.substr(-5)}: ERROR: ${e}`);
         }
         return undefined;
     }
@@ -33,6 +33,7 @@ export class AuthService {
     }
 
     async login(user: IUser): Promise<IAuthToken> {
+        console.log(`AuthService.login: ${user.username}`);
         const refreshPayload: IRefreshToken = {
             refresh_token: randomBytes(32).toString('hex'),
         };

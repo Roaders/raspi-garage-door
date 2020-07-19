@@ -54,6 +54,7 @@ export class AppController {
     @UseGuards(ExchangeTokenAuthGuard)
     @Get('exchangeToken')
     async exchangeToken(@RequestParam() req: any) {
+        console.log(`AppController.exchangeToken: ${JSON.stringify(req.user)}`);
         return this.authService.login(req.user);
     }
 }

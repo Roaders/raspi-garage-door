@@ -15,7 +15,7 @@ export class ImagesService {
 
     private _snapInProgress: Observable<string> | undefined;
 
-    private _snapSubject = new Subject<IStatusChangeImage>();
+    private readonly _snapSubject = new Subject<IStatusChangeImage>();
 
     public get snapStream() {
         return this._snapSubject;
@@ -26,7 +26,7 @@ export class ImagesService {
 
         this.startStream()
             .pipe(tap((image) => console.log(`ImagesService sending image to _snapSubject: ${image.name} `)))
-            .subscribe(this._snapSubject);
+            .subscribe((image) => this._snapSubject.next(image));
     }
 
     public newImage(): Observable<IStatusChangeImage> {

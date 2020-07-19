@@ -7,6 +7,6 @@ if (process.env.jwtSecret == null) {
 
 export const jwtConstants = {
     secret: process.env.jwtSecret || 'secretKey',
-    tokenExpiry: '5s',
+    tokenExpiry: '5m',
     refreshExpiry: '14 days',
 };

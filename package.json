@@ -7,7 +7,7 @@
     "postinstall": "concurrently --kill-others-on-fail npm:install:*",
     "install:server": "cd garage-door-server && npm install",
     "install:lib": "cd rpi-garage-door && npm install",
-    "clean": "rimraf dist",
+    "clean": "rimraf dist *.tgz",
     "lint": "concurrently --kill-others-on-fail npm:lint:*",
     "lint:server": "cd garage-door-server && npm run lint",
     "lint:ui": "cd garage-door-ui && npm run lint",

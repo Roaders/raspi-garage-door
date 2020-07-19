@@ -1,3 +1,11 @@
 language: node_js
 node_js: 12
-script: npm run build
+script: npm run build-release
+
+deploy:
+  - provider: releases
+    file: garage-door-opener-*.tgz
+    github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+    on:
+      tags: true
+    edge: true

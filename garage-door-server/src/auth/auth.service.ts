@@ -15,7 +15,8 @@ export class AuthService {
 
     public validateToken(token?: string) {
         if (token == null) {
-            throw new Error(`No token passed to AuthService.validateToken`);
+            console.warn(`AuthService.validateToken: no token supplied`);
+            return undefined;
         }
 
         try {

@@ -3,3 +3,4 @@ dist/
 .env
 users.json
 userTokens.json
+*.tgz

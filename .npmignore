@@ -4,3 +4,4 @@ rpi-garage-door/
 .vscode/
 users.json
 userTokens.json
+*.tgz

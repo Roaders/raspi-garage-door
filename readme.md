@@ -2,11 +2,25 @@
 
 ## Install
 
+### Clone from github and build
+(this can take a while on a raspberry pi)
+
 ```
 git clone https://github.com/Roaders/rpi-garage-door.git
 cd rpi-garage-door
 npm install
 npm run build
+```
+
+### Install Latest Release from GitHub
+
+```bash
+mkdir rpi-garage-door
+wget -O /tmp/z.$$ https://github.com/Roaders/rpi-garage-door/releases/download/[LATEST_VERSION]/garage-door-opener-[LATEST_VERSION].tgz
+tar -C rpi-garage-door -zxvf /tmp/z.$$ --strip-components=1
+cd rpi-garage-door
+npm rebuild
+rm /tmp/z.$$
 ```
 
 ### Create Users

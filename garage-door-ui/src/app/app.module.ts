@@ -1,4 +1,4 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -13,6 +13,7 @@ import { GarageDoorComponent } from './components/garage-door/garage-door.compon
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { HistoryComponent } from './components/history/history.component';
+import { version } from '../../../package.json';
 
 @NgModule({
     declarations: [AppComponent, LoginComponent, GarageDoorComponent, HistoryComponent],
@@ -26,4 +27,8 @@ import { HistoryComponent } from './components/history/history.component';
     ],
     bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule {
+    constructor(titleService: Title) {
+        titleService.setTitle(`Garage Door Opener ${version}`);
+    }
+}

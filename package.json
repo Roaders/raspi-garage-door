@@ -1,6 +1,6 @@
 {
   "name": "garage-door-opener",
-  "version": "1.1.4",
+  "version": "1.1.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -22,9 +22,9 @@
     "prebuild-release": "npm run clean",
     "build-release": "npm run build",
     "postbuild-release": "npm run build-node10-32 && npm run build-node12-32 && npm run build-node14-32",
-    "build-node10-32": "npx node-gyp rebuild -C node_modules/epoll/ --target=v10.21.0 && FILENAME=$(npm pack | tail -n 1) && mv $FILENAME \"node_10_32_$FILENAME\"",
-    "build-node12-32": "npx node-gyp rebuild -C node_modules/epoll/ --target=v12.18.2 && FILENAME=$(npm pack | tail -n 1) && mv $FILENAME \"node_12_32_$FILENAME\"",
-    "build-node14-32": "npx node-gyp rebuild -C node_modules/epoll/ --target=v14.5.0 && FILENAME=$(npm pack | tail -n 1) && mv $FILENAME \"node_14_32_$FILENAME\"",
+    "build-node10-32": "npx node-gyp rebuild -C node_modules/epoll/ --arch=ia32 --target=v10.21.0 && FILENAME=$(npm pack | tail -n 1) && mv $FILENAME \"node_10_32_$FILENAME\"",
+    "build-node12-32": "npx node-gyp rebuild -C node_modules/epoll/ --arch=ia32 --target=v12.18.2 && FILENAME=$(npm pack | tail -n 1) && mv $FILENAME \"node_12_32_$FILENAME\"",
+    "build-node14-32": "npx node-gyp rebuild -C node_modules/epoll/ --arch=ia32 --target=v14.5.0 && FILENAME=$(npm pack | tail -n 1) && mv $FILENAME \"node_14_32_$FILENAME\"",
     "start-prod": "node dist/garage-door-server/src/main.js",
     "create-user": "node dist/util/createUser",
     "check-user": "node dist/util/checkUser",

@@ -2,6 +2,9 @@ language: node_js
 node_js: 12
 script: npm run build-release
 
+before_install:
+  npm set npm_config_arch ia32
+  
 deploy:
   - provider: releases
     file: garage-door-opener-*.tgz

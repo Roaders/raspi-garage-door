@@ -7,7 +7,7 @@ before_install:
   
 deploy:
   - provider: releases
-    file: garage-door-opener-*.tgz
+    file: *.tgz
     token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
     on:
       tags: true

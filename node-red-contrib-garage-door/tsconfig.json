@@ -1,0 +1,12 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "nodes",
+        "rootDir": "../",
+        "declaration": false
+    },
+    "files": [ 
+        "garage-door.ts",
+        "garage-door-config.ts"
+    ]
+}

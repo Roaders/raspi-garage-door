@@ -16,7 +16,7 @@ module.exports = function (module: Red) {
         this.server = module.nodes.getNode(config.server) as IGarageDoorConfigNode;
 
         if (this.server != null) {
-            this.log(`GarageDoorNode PORT: ${this.server.port}`);
+            this.log(`GarageDoorNode PORT: ${this.server.properties.port}`);
         } else {
             this.warn(`GarageDoorNode NO PORT`);
         }

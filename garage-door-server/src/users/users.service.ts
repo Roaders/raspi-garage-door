@@ -39,8 +39,6 @@ export class UsersService {
             .filter((token) => token.refresh_token === refreshToken)
             .map((token) => ({ username: token.username }))[0];
 
-        console.log(`findFromRefreshToken: ${refreshToken.substr(-5)} user found: ${user?.username}`);
-
         return user;
     }
 }

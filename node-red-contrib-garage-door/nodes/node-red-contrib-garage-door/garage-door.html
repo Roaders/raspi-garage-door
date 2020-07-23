@@ -1,11 +1,13 @@
 <script type="text/javascript">
     RED.nodes.registerType('garage-door',{
         category: 'IOT',
+        inputs: 1,
+        outputs: 1,
         defaults: {
             name: {value:"garage-door"},
             server: {value:"", type:"garage-door-config"},
         },
-        icon: "file.png",
+        icon: "font-awesome/fa-automobile",
         label: function() {
             return this.name||"garage-door";
         }

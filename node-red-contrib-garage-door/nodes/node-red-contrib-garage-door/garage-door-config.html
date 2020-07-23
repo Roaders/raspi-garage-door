@@ -5,8 +5,12 @@
             port: { value: 3443, required: true, validate: RED.validators.number() },
             host: { value: "localhost", required: true },
             protocol: { value: "https", required: true, validate: RED.validators.regex(/^((http)|(https))$/) },
-            username: {required: true},
-            password: {required: true}
+            username: { value: "", required: true },
+            password: { value: "", required: true },
+        },
+        credentials: {
+            username: { type: "text" },
+            password: { type: "password" }
         },
         label: function () {
             return this.protocol + "://" + this.host + ":" + this.port;

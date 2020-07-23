@@ -16,7 +16,6 @@ export class ExchangeTokenStrategy extends PassportStrategy(Strategy, 'exchange-
     }
 
     async validate(payload: IRefreshToken): Promise<IUser | undefined> {
-        console.log(`ExchangeTokenStrategy.validate: ${payload.refresh_token.substr(-5)}`);
         const user = await this.userService.findFromRefreshToken(payload.refresh_token);
 
         return user ? { username: user.username } : undefined;

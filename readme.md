@@ -16,11 +16,11 @@ npm run build
 
 ```bash
 mkdir rpi-garage-door
-wget -O /tmp/z.$$ https://github.com/Roaders/rpi-garage-door/releases/download/[LATEST_VERSION]/garage-door-opener-[LATEST_VERSION].tgz
-tar -C rpi-garage-door -zxvf /tmp/z.$$ --strip-components=1
 cd rpi-garage-door
-npm rebuild
+wget -O /tmp/z.$$ https://github.com/Roaders/rpi-garage-door/releases/download/[LATEST_VERSION]/garage-door-opener-[LATEST_VERSION].tgz
+tar -zxvf /tmp/z.$$ --strip-components=1
 rm /tmp/z.$$
+npm rebuild
 ```
 
 ### Create Users

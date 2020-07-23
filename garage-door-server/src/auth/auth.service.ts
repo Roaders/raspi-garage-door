@@ -38,12 +38,7 @@ export class AuthService {
     }
 
     async login(user: IUser): Promise<IAuthToken> {
-        console.log(`AuthService.login: ${user.username}`);
-        const refreshPayload: IRefreshToken = {
-            refresh_token: randomBytes(32).toString('hex'),
-        };
-
-        await this.storeRefreshToken(user, refreshPayload);
+        const refreshPayload = await this.storeRefreshToken(user);
 
         return {
             access_token: this.jwtService.sign(user),
@@ -51,7 +46,7 @@ export class AuthService {
         };
     }
 
-    private async storeRefreshToken(user: IUser, refreshToken: IRefreshToken) {
+    private async storeRefreshToken(user: IUser): Promise<IRefreshToken> {
         const tokensPath = join(__dirname, '../../../../', 'userTokens.json');
         let tokens: IUserToken[] = [];
 
@@ -59,12 +54,24 @@ export class AuthService {
             console.log(`Loading existing tokens from '${tokensPath}'`);
 
             tokens = JSON.parse((await promises.readFile(tokensPath)).toString());
-            tokens = tokens.filter((token) => token.username != user.username);
+            const existingUserToken: IUserToken | undefined = tokens.filter(
+                (token) => token.username === user.username,
+            )[0];
+
+            if (existingUserToken) {
+                console.log(`Returning existing refresh token`);
+                return { refresh_token: existingUserToken.refresh_token };
+            }
         }
 
+        const refreshToken: IRefreshToken = {
+            refresh_token: randomBytes(32).toString('hex'),
+        };
         tokens.push({ ...user, ...refreshToken });
 
         console.log(`Writing tokens file to: '${tokensPath}'`);
         await promises.writeFile(tokensPath, JSON.stringify(tokens, undefined, 4));
+
+        return refreshToken;
     }
 }

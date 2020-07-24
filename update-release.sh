@@ -27,3 +27,5 @@ rm ./latestRelease.html ./latestRelease.tgz
 echo "Starting garage-door"
 
 sudo systemctl start garage-door
+
+echo "$PARTIAL downloaded and installed."

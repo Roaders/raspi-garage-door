@@ -23,6 +23,24 @@ rm /tmp/z.$$
 npm rebuild
 ```
 
+Or do the above steps with one script:
+
+```bash
+mkdir rpi-garage-door
+cd rpi-garage-door
+bash <(curl -sL https://raw.githubusercontent.com/Roaders/rpi-garage-door/master/update-release.sh)
+```
+
+this script:
+
+ * Downloads the latest release page
+ * uses wget to download the referenced tar
+ * stops the `garage-door` service
+ * extracts the tar
+ * rebuilds epoll (tar is compiled on 64 bit machine, most pis are 32 bit)
+ * cleans up downloaded files
+ * starts `garage-door` service
+
 ### Create Users
 
 ```

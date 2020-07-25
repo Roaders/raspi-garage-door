@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { GarageDoorHttpService, AuthTokenService } from 'src/app/services';
-import { IGarageDoorStatus } from '../../../../../shared';
+import { IGarageDoorStatus, GarageDoorHttpService, AuthTokenService } from '../../../../../shared';
 import { Router } from '@angular/router';
 import { getStatusStyle, getLockIcon } from 'src/app/helpers';
+import { from } from 'rxjs';
 
 @Component({
     selector: 'garage-door',
@@ -75,12 +75,12 @@ export class GarageDoorComponent implements OnInit {
 
     public openDoor() {
         this.reset();
-        this.service.openDoor().subscribe(this.onStatus.bind(this), this.onError.bind(this));
+        from(this.service.openDoor()).subscribe(this.onStatus.bind(this), this.onError.bind(this));
     }
 
     public closeDoor() {
         this.reset();
-        this.service.closeDoor().subscribe(this.onStatus.bind(this), this.onError.bind(this));
+        from(this.service.closeDoor()).subscribe(this.onStatus.bind(this), this.onError.bind(this));
     }
 
     public ngOnInit(): void {
@@ -92,7 +92,7 @@ export class GarageDoorComponent implements OnInit {
     }
 
     public loadStatus() {
-        this.service.loadStatus().subscribe(this.onStatus.bind(this), this.onError.bind(this));
+        from(this.service.loadStatus()).subscribe(this.onStatus.bind(this), this.onError.bind(this));
     }
 
     private reset() {

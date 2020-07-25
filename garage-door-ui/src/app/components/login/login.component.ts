@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { IAuthToken } from '../../../../../shared';
+import { GarageDoorHttpService } from '../../../../../shared';
 import { Router } from '@angular/router';
+import { from } from 'rxjs';
 
 @Component({
     selector: 'app-login',
@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
     styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-    constructor(private http: HttpClient, private router: Router) {}
+    constructor(private service: GarageDoorHttpService, private router: Router) {}
 
     private _error: string | undefined;
 
@@ -18,16 +18,14 @@ export class LoginComponent {
     }
 
     public login(username: string, password: string) {
-        this.http
-            .post<IAuthToken>('api/login', { username, password })
-            .subscribe(
-                () => {
-                    this._error = undefined;
-                    this.router.navigate(['']);
-                },
-                (error) => {
-                    this._error = error.message;
-                },
-            );
+        from(this.service.login(username, password)).subscribe(
+            () => {
+                this._error = undefined;
+                this.router.navigate(['']);
+            },
+            (error) => {
+                this._error = error.message;
+            },
+        );
     }
 }

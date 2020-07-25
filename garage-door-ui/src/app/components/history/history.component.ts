@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { GarageDoorHttpService } from 'src/app/services';
 import { getStatusStyle, getLockIcon, stringifyError } from 'src/app/helpers';
 import { subtract, format } from 'date-and-time';
-import { IStatusChangeImage } from '../../../../../shared';
+import { IStatusChangeImage, GarageDoorHttpService } from '../../../../../shared';
+import { from } from 'rxjs';
 
 @Component({
     selector: 'history',
@@ -18,7 +18,7 @@ export class HistoryComponent implements OnInit {
             (error) => console.log(`HistoryComponent ngOnInit: Stream Error: ${error}`),
         );
 
-        this.service.getLatestImage().subscribe((images) => this.addImage(...images));
+        from(this.service.getLatestImage()).subscribe((images) => this.addImage(...images));
     }
 
     private _error: string | undefined;
@@ -101,7 +101,7 @@ export class HistoryComponent implements OnInit {
     public takePicture() {
         this._takingPicture = true;
         this._error = undefined;
-        this.service.takePicture().subscribe(
+        from(this.service.takePicture()).subscribe(
             (image) => {
                 this._takingPicture = false;
                 this.addImage(image);
@@ -116,7 +116,7 @@ export class HistoryComponent implements OnInit {
     public loadMore() {
         this._loadingMore = true;
         this._error = undefined;
-        this.service.getImages(this._statusUpdates[this._statusUpdates.length - 1].timestamp).subscribe(
+        from(this.service.getImages(this._statusUpdates[this._statusUpdates.length - 1].timestamp)).subscribe(
             (images) => {
                 if (images.length < 5) {
                     this._allLoaded = true;

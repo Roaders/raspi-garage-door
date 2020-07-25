@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { IAuthToken } from '../../../../shared';
 import { Subject } from 'rxjs';
+import { IAuthToken } from '../contracts';
 
 const LOCAL_STORAGE_KEY = `rpi-garage-door.token.store`;
 

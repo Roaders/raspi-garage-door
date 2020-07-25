@@ -1,7 +1,6 @@
 import { Red, Node, NodeProperties } from 'node-red';
 import {
     IGarageDoorStatus,
-    IAuthToken,
     SocketFactory,
     AuthTokenService,
     GarageDoorHttpService,
@@ -18,15 +17,13 @@ export interface IGarageDoorConfigProperties extends NodeProperties {
 }
 
 export interface IGarageDoorConfigNode extends Node {
-    properties: IGarageDoorConfigProperties;
-    token: IAuthToken | undefined;
     doorStatus: IGarageDoorStatus | undefined;
     credentials: { username: string; password: string };
     setStatus: (status: UPDATE_DOOR_STATUS) => Observable<IGarageDoorStatus>;
 }
 
-function getBaseUrl(node: IGarageDoorConfigNode) {
-    return `${node.properties.protocol}://${node.properties.host}:${node.properties.port}`;
+function getBaseUrl(properties: IGarageDoorConfigProperties) {
+    return `${properties.protocol}://${properties.host}:${properties.port}`;
 }
 
 function onStatusChange(node: IGarageDoorConfigNode, status: IGarageDoorStatus) {
@@ -37,15 +34,13 @@ function onStatusChange(node: IGarageDoorConfigNode, status: IGarageDoorStatus) 
 module.exports = function (module: Red) {
     function GarageDoorConfig(this: IGarageDoorConfigNode, config: IGarageDoorConfigProperties) {
         module.nodes.createNode(this, config);
-        this.properties = config;
 
-        const socketFactory = new SocketFactory(this, getBaseUrl(this));
+        const socketFactory = new SocketFactory(this, getBaseUrl(config));
         const authTokenService = new AuthTokenService(new NodeTokenStore());
         const httpService = new GarageDoorHttpService(authTokenService, socketFactory);
-        httpService.baseUrl = getBaseUrl(this);
+        httpService.baseUrl = getBaseUrl(config);
 
         this.setStatus = (status: UPDATE_DOOR_STATUS) => from(httpService.setGarageState(status));
-        this.properties = config;
 
         httpService.statusUpdatesStream().subscribe((update: IGarageDoorStatus) => onStatusChange(this, update));
 

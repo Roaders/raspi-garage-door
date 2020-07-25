@@ -69,8 +69,6 @@ export class SocketFactory {
     }
 
     /**
-     * TODO: pass new token as part of stream to update consumers
-     * TODO: refresh client state when new socket returned
      * We need custom reconnect logic rather than relying on socket io reconnection
      * This is because most likely our token will have changed when we need to reconnect
      * because of this we exchange our existing token for a new one before trying to reconnect to socket.

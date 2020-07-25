@@ -20,6 +20,17 @@ export class GarageDoorHttpService {
         socketFactory.socketStream.subscribe((socket) => {
             socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => this.doorStatusSubject.next(update));
             socket.on(DOOR_IMAGE_UPDATES, (update: IStatusChangeImage) => this.doorImageSubject.next(update));
+
+            if (this.doorStatusSubject.observers.length > 0) {
+                console.log(`Door status has subscribers, refreshing`);
+                from(this.loadStatus()).subscribe((status) => this.doorStatusSubject.next(status));
+            }
+            if (this.doorImageSubject.observers.length > 0) {
+                console.log(`Image status has subscribers, refreshing`);
+                from(this.getLatestImage()).subscribe((images) =>
+                    images.forEach((image) => this.doorImageSubject.next(image)),
+                );
+            }
         });
     }
 

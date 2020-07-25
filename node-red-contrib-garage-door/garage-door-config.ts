@@ -2,7 +2,6 @@ import { Red, Node, NodeProperties } from 'node-red';
 import {
     IGarageDoorStatus,
     IAuthToken,
-    DOOR_STATUS_UPDATES,
     SocketFactory,
     AuthTokenService,
     GarageDoorHttpService,
@@ -46,12 +45,9 @@ module.exports = function (module: Red) {
         httpService.baseUrl = getBaseUrl(this);
 
         this.setStatus = (status: UPDATE_DOOR_STATUS) => from(httpService.setGarageState(status));
-
-        socketFactory.socketStream.subscribe((socket) => {
-            socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => onStatusChange(this, update));
-        });
-
         this.properties = config;
+
+        httpService.statusUpdatesStream().subscribe((update: IGarageDoorStatus) => onStatusChange(this, update));
 
         this.on('close', () => {
             socketFactory.close();

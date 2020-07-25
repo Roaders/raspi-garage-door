@@ -4,29 +4,36 @@ import { GarageDoorService } from '../../../rpi-garage-door/src';
 import { DOOR_STATUS_UPDATES, DOOR_IMAGE_UPDATES } from '../../../shared';
 import { AuthService } from '../auth/';
 import { ImagesService } from './images.service';
+import { OnModuleDestroy } from '@nestjs/common';
 
 @WebSocketGateway()
-export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconnect, OnModuleDestroy {
     constructor(
         private garageDoorService: GarageDoorService,
         private imagesService: ImagesService,
         private authService: AuthService,
     ) {}
 
-    private clients: { [key: string]: string } = {};
+    private clients: { [key: string]: Socket | undefined } = {};
     private _listening = false;
 
     @WebSocketServer()
     server: Server | undefined;
 
+    public onModuleDestroy() {
+        console.log(`onModuleDestroy: ${Object.keys(this.clients).length}`);
+
+        Object.keys(this.clients).forEach((id) => this.clients[id]?.disconnect(true));
+    }
+
     public handleConnection(socket: Socket) {
         const tokenValid = this.authService.validateToken(socket.handshake.query.token);
 
         if (tokenValid == null) {
-            socket.disconnect();
+            socket.disconnect(true);
         }
 
-        this.clients[socket.id] = socket.id;
+        this.clients[socket.id] = socket;
         this.listenForEvents();
     }
 

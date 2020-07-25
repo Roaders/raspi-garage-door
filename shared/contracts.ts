@@ -52,6 +52,42 @@ export interface ILoginCredentials {
     password: string;
 }
 
+export interface ILoggingTarget {
+    /**
+     * Log an log-level event. Used for mundane events
+     * that are part of the normal functioning of the
+     * node.
+     * @param msg - message to log.
+     */
+    log(msg: any): void;
+    /**
+     * Log a warn-level event. For important events
+     * that the user should be made aware of.
+     * @param msg - message to log.
+     */
+    warn(msg: any): void;
+    /**
+     * Log an error-level event. To trigger catch nodes on
+     * the workflow call the function with msg set to the
+     * original message.
+     * @param logMessage - description of the error.
+     * @param msg - optional payload that caused the error.
+     */
+    error(logMessage: any, msg?: any): void;
+    /**
+     * Log a debug-level event. Use this is for logging
+     * internal detail not needed for normal operation.
+     * @param msg - message to log.
+     */
+    debug(msg: any): void;
+    /**
+     * Log a trace-level event. Even more internal details than
+     * debug-level.
+     * @param msg - message to log.
+     */
+    trace(msg: any): void;
+}
+
 export function isAuthResponse(value: any): value is IAuthToken {
     const authResponse = value as IAuthToken;
     return (

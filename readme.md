@@ -167,7 +167,7 @@ and add the restart command:
 systemctl restart garage-door
 ```
 
-## Renew Certificates:
+### Renew Certificates:
 
 (this should happen automatically)
 
@@ -187,3 +187,19 @@ force (to test server restart)
  sudo certbot renew --force-renewal
 ```
 this will only work a limited number of times a day due to rate limiting. Use dry run first.
+
+
+## Stuff I learnt
+
+This app covers quite a bit of ground and in building it I had to learn a lot of stuff:
+
+ * Controlling hardware with RPI gpio pins and sensing state (with reed switches) and using rpi camera
+ * How to issue and renew secure certificates and apply them to a dynamic IP address
+ * How to securely store user passwords with bcrypt
+ * How to work with access tokens and renew them with refresh tokens
+ * How to secure nest endpoints with authguards
+ * jwt (json web tokens) for signing access and refresh tokens
+ * securing angular routes with auth guards
+ * setting up push messags with Socket IO and consuming from node and angular apps
+ * how to setup and run an app as a linux service
+ * how to write linux bash scripts

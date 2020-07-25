@@ -1,9 +1,8 @@
 import { Red, Node, NodeProperties } from 'node-red';
 import axios from 'axios';
-import { IGarageDoorStatus, IAuthToken, DOOR_STATUS_UPDATES } from '../shared';
+import { IGarageDoorStatus, IAuthToken, DOOR_STATUS_UPDATES, SocketFactory } from '../shared';
 import { from, of, Observable } from 'rxjs';
 import { map, tap, mergeMap, catchError } from 'rxjs/operators';
-import io from 'socket.io-client';
 
 export interface IGarageDoorConfigProperties extends NodeProperties {
     port: number;
@@ -14,7 +13,6 @@ export interface IGarageDoorConfigProperties extends NodeProperties {
 export interface IGarageDoorConfigNode extends Node {
     properties: IGarageDoorConfigProperties;
     token: IAuthToken | undefined;
-    socket: SocketIOClient.Socket | undefined;
     doorStatus: IGarageDoorStatus | undefined;
     credentials: { username: string; password: string };
     setStatus: (status: IGarageDoorStatus) => Observable<IGarageDoorStatus>;
@@ -97,40 +95,20 @@ function onStatusChange(node: IGarageDoorConfigNode, status: IGarageDoorStatus) 
     node.emit('doorStatus', status);
 }
 
-function createSocket(node: IGarageDoorConfigNode, token: IAuthToken) {
-    if (node.socket) {
-        node.socket.close();
-    }
-
-    const url = `${getBaseUrl(node)}?token=${token.access_token}`;
-
-    try {
-        const socket = io(url);
-        node.socket = socket;
-
-        socket.on('connect', () => {
-            node.log(`SOCKET CONNECTED`);
-        });
-
-        socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => onStatusChange(node, update));
-
-        socket.on('disconnect ', () => node.log(`SOCKET DISCONNECTED`));
-        socket.on('error', (error: any) => node.log(`Error from stream: ${error}`));
-    } catch (e) {
-        node.log(`Error setting up stream: ${e}`);
-    }
-}
-
 module.exports = function (module: Red) {
     function GarageDoorConfig(this: IGarageDoorConfigNode, config: IGarageDoorConfigProperties) {
         module.nodes.createNode(this, config);
 
+        const socketFactory = new SocketFactory(this);
+
+        socketFactory.socketStream.subscribe((socket) => {
+            socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => onStatusChange(this, update));
+        });
+
         this.properties = config;
 
         this.on('close', () => {
-            if (this.socket != null) {
-                this.socket.close();
-            }
+            socketFactory.close();
         });
 
         loadStatus(this).subscribe(
@@ -146,7 +124,7 @@ module.exports = function (module: Red) {
             get: () => _token,
             set: (value: IAuthToken) => {
                 _token = value;
-                createSocket(this, value);
+                socketFactory.createSocket(value, getBaseUrl(this), (token) => exchangeToken(this, token).toPromise());
             },
         });
     }

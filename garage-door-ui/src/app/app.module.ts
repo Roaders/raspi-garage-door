@@ -14,12 +14,14 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { HistoryComponent } from './components/history/history.component';
 import { version } from '../../../package.json';
+import { SocketFactory } from '../../../shared';
 
 @NgModule({
     declarations: [AppComponent, LoginComponent, GarageDoorComponent, HistoryComponent],
     imports: [BrowserModule, CommonModule, HttpClientModule, FormsModule, AppRoutingModule, FontAwesomeModule],
     providers: [
         { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+        { provide: SocketFactory, useValue: new SocketFactory(console) },
         AuthTokenService,
         AuthGuard,
         LoggedInGuard,

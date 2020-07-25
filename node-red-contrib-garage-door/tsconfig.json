@@ -3,6 +3,7 @@
     "compilerOptions": {
         "outDir": "nodes",
         "rootDir": "../",
+        "baseUrl": "../",
         "declaration": false
     },
     "files": [ 

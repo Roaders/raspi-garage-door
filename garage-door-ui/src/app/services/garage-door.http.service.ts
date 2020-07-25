@@ -1,20 +1,38 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { IGarageDoorStatus, UPDATE_DOOR_STATUS, IStatusChangeImage, DOOR_IMAGE_UPDATES } from '../../../../shared';
-import io from 'socket.io-client';
+import {
+    IGarageDoorStatus,
+    UPDATE_DOOR_STATUS,
+    IStatusChangeImage,
+    DOOR_IMAGE_UPDATES,
+    SocketFactory,
+    IAuthToken,
+} from '../../../../shared';
 import { DOOR_STATUS_UPDATES } from '../../../../shared';
 import { environment } from '../../environments/environment';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { AuthTokenService } from './auth-token.service';
+import { shareReplay, tap } from 'rxjs/operators';
+
+export const exchangeUrl = 'api/exchangeToken';
 
 @Injectable()
 export class GarageDoorHttpService {
-    private _socket: SocketIOClient.Socket | undefined;
     private doorStatusSubject = new Subject<IGarageDoorStatus>();
     private doorImageSubject = new Subject<IStatusChangeImage>();
+    private exchangeTokenStream: Observable<IAuthToken> | undefined;
 
-    constructor(private http: HttpClient, private authTokenService: AuthTokenService) {
+    constructor(
+        private http: HttpClient,
+        private authTokenService: AuthTokenService,
+        private socketFactory: SocketFactory,
+    ) {
         authTokenService.tokenStream.subscribe(() => this.onNewToken());
+
+        socketFactory.socketStream.subscribe((socket) => {
+            socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => this.doorStatusSubject.next(update));
+            socket.on(DOOR_IMAGE_UPDATES, (update: IStatusChangeImage) => this.doorImageSubject.next(update));
+        });
     }
 
     public getLatestImage() {
@@ -41,6 +59,20 @@ export class GarageDoorHttpService {
         return this.setGarageState('CLOSED');
     }
 
+    public exchangeToken(): Observable<IAuthToken> {
+        if (this.exchangeTokenStream != null) {
+            return this.exchangeTokenStream;
+        }
+
+        this.exchangeTokenStream = this.http.get<IAuthToken>(exchangeUrl).pipe(
+            tap(() => {
+                this.exchangeTokenStream = undefined;
+            }),
+            shareReplay(1),
+        );
+        return this.exchangeTokenStream;
+    }
+
     public statusUpdatesStream() {
         this.createSocket();
 
@@ -54,41 +86,17 @@ export class GarageDoorHttpService {
     }
 
     private onNewToken() {
-        this.createSocket(true);
+        this.createSocket();
     }
 
-    private createSocket(force = false) {
-        if (this._socket != null && !force) {
+    private createSocket() {
+        if (this.authTokenService.authToken == null) {
             return;
         }
 
-        if (this._socket) {
-            this._socket.close();
-        }
-
-        let url = environment.updatesUrl;
-        if (this.authTokenService.authToken != null) {
-            url = `${url}?token=${this.authTokenService.authToken.access_token}`;
-        }
-
-        try {
-            const socket = io(url);
-            this._socket = socket;
-
-            socket.on('connect', () => {
-                console.log(`GarageDoorHttpService statusUpdatesStream: SOCKET CONNECTED`);
-            });
-
-            socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => this.doorStatusSubject.next(update));
-            socket.on(DOOR_IMAGE_UPDATES, (update: IStatusChangeImage) => this.doorImageSubject.next(update));
-
-            socket.on('disconnect ', () => console.log(`GarageDoorHttpService statusUpdatesStream: disconnect`));
-            socket.on('error', (error: any) =>
-                console.log(`GarageDoorHttpService statusUpdatesStream: Error from stream: ${error}`),
-            );
-        } catch (e) {
-            console.log(`GarageDoorHttpService statusUpdatesStream: Error setting up stream: ${e}`);
-        }
+        this.socketFactory.createSocket(this.authTokenService.authToken, environment.updatesUrl, () =>
+            this.exchangeToken().toPromise(),
+        );
     }
 
     private setGarageState(status: UPDATE_DOOR_STATUS) {

@@ -75,7 +75,7 @@ module.exports = function (module: Red) {
             }
 
             if (newStatus != null) {
-                this.server.setStatus({ status: newStatus }).subscribe(
+                this.server.setStatus(newStatus).subscribe(
                     (status) => updateStatus(this, status.status),
                     (error) => this.error(`Could not update door state: ${error}`),
                 );

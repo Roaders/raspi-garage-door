@@ -12,15 +12,15 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { CommonModule } from '@angular/common';
 import { HistoryComponent } from './components/history/history.component';
 import { version } from '../../../package.json';
-import { SocketFactory, AuthTokenService, GarageDoorHttpService } from '../../../shared';
+import { SocketFactory, AuthTokenService, GarageDoorHttpService, BrowserTokenStore } from '../../../shared';
 import { environment } from 'src/environments/environment';
 
 @NgModule({
     declarations: [AppComponent, LoginComponent, GarageDoorComponent, HistoryComponent],
     imports: [BrowserModule, CommonModule, HttpClientModule, FormsModule, AppRoutingModule, FontAwesomeModule],
     providers: [
-        { provide: SocketFactory, useValue: new SocketFactory(console) },
-        { provide: 'updatesUrl', useValue: environment.updatesUrl },
+        { provide: SocketFactory, useValue: new SocketFactory(console, environment.updatesUrl) },
+        { provide: 'tokenStore', useValue: new BrowserTokenStore() },
         AuthTokenService,
         AuthGuard,
         LoggedInGuard,

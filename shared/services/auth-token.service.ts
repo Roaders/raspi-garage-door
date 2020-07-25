@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { IAuthToken } from '../contracts';
-
-const LOCAL_STORAGE_KEY = `rpi-garage-door.token.store`;
+import { IAuthToken, ITokenStore } from '../contracts';
+import { Inject } from '@angular/core';
 
 @Injectable()
 export class AuthTokenService {
+    constructor(@Inject('tokenStore') private tokenStore: ITokenStore) {}
+
     private _tokenStream: Subject<IAuthToken | undefined> = new Subject();
 
     public get tokenStream() {
@@ -13,16 +14,11 @@ export class AuthTokenService {
     }
 
     public get authToken(): IAuthToken | undefined {
-        const rawString = localStorage.getItem(LOCAL_STORAGE_KEY);
-        return rawString != null ? JSON.parse(rawString) : undefined;
+        return this.tokenStore.token;
     }
 
     public set authToken(value: IAuthToken | undefined) {
-        if (value != null) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(value));
-        } else {
-            localStorage.removeItem(LOCAL_STORAGE_KEY);
-        }
+        this.tokenStore.token = value;
 
         this.tokenStream.next(value);
     }

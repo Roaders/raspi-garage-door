@@ -19,6 +19,10 @@ type MapConfig<T> = {
     [P in keyof T]?: NonNullable<T[P]> extends string | number ? NonNullable<T[P]> : unknown;
 };
 
+export interface ITokenStore {
+    token: IAuthToken | undefined;
+}
+
 export type UntypedServerConfig = MapConfig<Required<IServerConfig>>;
 
 export interface IUser {

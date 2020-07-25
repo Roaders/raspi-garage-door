@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Subject, Observable, from } from 'rxjs';
 import { AuthTokenService } from './auth-token.service';
 import { shareReplay, tap, map, catchError, mergeMap } from 'rxjs/operators';
@@ -8,19 +8,13 @@ import { DOOR_STATUS_UPDATES, DOOR_IMAGE_UPDATES } from '../constants';
 import { SocketFactory } from '../socket-factory';
 import { createAxiosConfig } from '../helpers';
 
-export const exchangeUrl = 'api/exchangeToken';
-
 @Injectable()
 export class GarageDoorHttpService {
     private doorStatusSubject = new Subject<IGarageDoorStatus>();
     private doorImageSubject = new Subject<IStatusChangeImage>();
     private exchangeTokenStream: Observable<IAuthToken> | undefined;
 
-    constructor(
-        private authTokenService: AuthTokenService,
-        private socketFactory: SocketFactory,
-        @Inject('updatesUrl') private updatesUrl: string,
-    ) {
+    constructor(private authTokenService: AuthTokenService, private socketFactory: SocketFactory) {
         authTokenService.tokenStream.subscribe(() => this.onNewToken());
 
         socketFactory.socketStream.subscribe((socket) => {
@@ -29,32 +23,51 @@ export class GarageDoorHttpService {
         });
     }
 
+    public baseUrl: string | undefined;
+
     public getLatestImage() {
         return this.wrapPromise(() =>
-            axios.get<IStatusChangeImage[]>('api/garage/image?maxCount=1', this.createConfig()),
+            axios.get<IStatusChangeImage[]>(this.buildUrl('api/garage/image?maxCount=1'), this.createConfig()),
         );
     }
 
     public getImages(before: number) {
         return this.wrapPromise(() =>
-            axios.get<IStatusChangeImage[]>(`api/garage/image?maxCount=5&before=${before}`, this.createConfig()),
+            axios.get<IStatusChangeImage[]>(
+                this.buildUrl(`api/garage/image?maxCount=5&before=${before}`),
+                this.createConfig(),
+            ),
         );
     }
 
     public takePicture() {
-        return this.wrapPromise(() => axios.get<IStatusChangeImage>(`api/garage/image/newImage`, this.createConfig()));
+        return this.wrapPromise(() =>
+            axios.get<IStatusChangeImage>(this.buildUrl('api/garage/image/newImage'), this.createConfig()),
+        );
     }
 
     public loadStatus() {
-        return this.wrapPromise(() => axios.get<IGarageDoorStatus>('api/garage/door', this.createConfig()));
+        return this.wrapPromise(() =>
+            axios.get<IGarageDoorStatus>(this.buildUrl('api/garage/door'), this.createConfig()),
+        );
     }
 
     public openDoor() {
-        return this.setGarageState('OPEN');
+        return this.setGarageState(`OPEN`);
     }
 
     public closeDoor() {
-        return this.setGarageState('CLOSED');
+        return this.setGarageState(`CLOSED`);
+    }
+
+    public setGarageState(status: UPDATE_DOOR_STATUS) {
+        const payload: IGarageDoorStatus<UPDATE_DOOR_STATUS> = {
+            status,
+        };
+
+        return this.wrapPromise(() =>
+            axios.put<IGarageDoorStatus>(this.buildUrl('api/garage/door'), payload, this.createConfig()),
+        );
     }
 
     public statusUpdatesStream() {
@@ -71,7 +84,7 @@ export class GarageDoorHttpService {
 
     public login(username: string, password: string) {
         return from(
-            axios.post<IAuthToken>('api/login', { username, password }),
+            axios.post<IAuthToken>(this.buildUrl('api/login'), { username, password }),
         )
             .pipe(
                 map((response) => response.data),
@@ -80,19 +93,33 @@ export class GarageDoorHttpService {
             .toPromise();
     }
 
+    private buildUrl(path: string): string {
+        if (this.baseUrl == null) {
+            return path;
+        }
+
+        return `${this.baseUrl}/${path}`;
+    }
+
     private exchangeToken(): Observable<IAuthToken> {
         if (this.exchangeTokenStream != null) {
             return this.exchangeTokenStream;
         }
 
         this.exchangeTokenStream = from(
-            axios.get<IAuthToken>(exchangeUrl, createAxiosConfig(this.authTokenService.authToken?.refresh_token)),
+            axios.get<IAuthToken>(
+                this.buildUrl('api/exchangeToken'),
+                createAxiosConfig(this.authTokenService.authToken?.refresh_token),
+            ),
         ).pipe(
             map((response) => response.data),
-            tap((token) => {
-                this.exchangeTokenStream = undefined;
-                this.authTokenService.authToken = token;
-            }),
+            tap(
+                (token) => {
+                    this.exchangeTokenStream = undefined;
+                    this.authTokenService.authToken = token;
+                },
+                () => (this.exchangeTokenStream = undefined),
+            ),
             shareReplay(1),
         );
 
@@ -117,17 +144,7 @@ export class GarageDoorHttpService {
             return;
         }
 
-        this.socketFactory.createSocket(this.authTokenService.authToken, this.updatesUrl, () =>
-            this.exchangeToken().toPromise(),
-        );
-    }
-
-    private setGarageState(status: UPDATE_DOOR_STATUS) {
-        const payload: IGarageDoorStatus<UPDATE_DOOR_STATUS> = {
-            status,
-        };
-
-        return this.wrapPromise(() => axios.put<IGarageDoorStatus>('api/garage/door', payload, this.createConfig()));
+        this.socketFactory.createSocket(this.authTokenService.authToken, () => this.exchangeToken().toPromise());
     }
 
     private createConfig() {

@@ -64,7 +64,7 @@ export class ImagesService {
             map(createImageDTO),
             filter(isDefined),
             catchError((e) => {
-                console.log(`Error taking photo: ${e}`);
+                console.error(`Error taking photo: ${e}`);
                 return this.startStream();
             }),
         );

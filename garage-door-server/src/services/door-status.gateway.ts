@@ -21,8 +21,6 @@ export class DoorStatusGateway implements OnGatewayConnection, OnGatewayDisconne
     server: Server | undefined;
 
     public onModuleDestroy() {
-        console.log(`onModuleDestroy: ${Object.keys(this.clients).length}`);
-
         Object.keys(this.clients).forEach((id) => this.clients[id]?.disconnect(true));
     }
 

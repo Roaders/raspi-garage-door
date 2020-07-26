@@ -58,6 +58,12 @@ export class SocketFactory {
             socket.on('reconnecting', (count: number) => this.logger.log(`SocketFactory: reconnecting ${count}`));
             socket.on('error', (error: any) => this.logger.log(`SocketFactory: Error from stream: ${error}`));
 
+            socket.on('connect_error', () => {
+                this.logger.log(`SocketFactory: connect_error`);
+                this._socket?.close();
+                this.attemptConnection(tokenFactory);
+            });
+
             socket.on('disconnect', () => {
                 this.logger.log(`GarageDoorHttpService: disconnect`);
                 this._socket?.close();

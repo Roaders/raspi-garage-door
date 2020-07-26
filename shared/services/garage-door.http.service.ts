@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable, from } from 'rxjs';
+import { Subject, Observable, from, Subscriber } from 'rxjs';
 import { AuthTokenService } from './auth-token.service';
 import { shareReplay, tap, map, catchError, mergeMap } from 'rxjs/operators';
 import axios, { AxiosResponse } from 'axios';
@@ -11,23 +11,30 @@ import { createAxiosConfig } from '../helpers';
 @Injectable()
 export class GarageDoorHttpService {
     private doorStatusSubject = new Subject<IGarageDoorStatus>();
+    private doorStatusObservable: Observable<IGarageDoorStatus> | undefined;
     private doorImageSubject = new Subject<IStatusChangeImage>();
+    private doorImageObservable: Observable<IStatusChangeImage> | undefined;
     private exchangeTokenStream: Observable<IAuthToken> | undefined;
+    private initialSocketCreated = false;
 
     constructor(private authTokenService: AuthTokenService, private socketFactory: SocketFactory) {
         authTokenService.tokenStream.subscribe(() => this.onNewToken());
 
         socketFactory.socketStream.subscribe((socket) => {
+            console.log(`INITIAL SOCKET`);
+            this.initialSocketCreated = true;
             socket.on(DOOR_STATUS_UPDATES, (update: IGarageDoorStatus) => this.doorStatusSubject.next(update));
             socket.on(DOOR_IMAGE_UPDATES, (update: IStatusChangeImage) => this.doorImageSubject.next(update));
 
             if (this.doorStatusSubject.observers.length > 0) {
-                from(this.loadStatus()).subscribe((status) => this.doorStatusSubject.next(status));
+                this.updateDoorStatus();
+            } else {
+                console.log(`No doorStatusSubject subscribers, not updating status`);
             }
             if (this.doorImageSubject.observers.length > 0) {
-                from(this.getLatestImage()).subscribe((images) =>
-                    images.forEach((image) => this.doorImageSubject.next(image)),
-                );
+                this.updateImagesStatus();
+            } else {
+                console.log(`No doorImageSubject subscribers, not updating status`);
             }
         });
     }
@@ -82,13 +89,35 @@ export class GarageDoorHttpService {
     public statusUpdatesStream() {
         this.createSocket();
 
-        return this.doorStatusSubject;
+        if (this.doorStatusObservable == null) {
+            this.doorStatusObservable = new Observable((subscriber: Subscriber<IGarageDoorStatus>) => {
+                console.log(`doorStatusObservable subscription`);
+                if (this.initialSocketCreated) {
+                    console.log(`statusUpdatesStream this.initialSocketCreated => updateImagesStatus`);
+                    this.updateDoorStatus();
+                }
+                return this.doorStatusSubject.subscribe(subscriber);
+            });
+        }
+
+        return this.doorStatusObservable;
     }
 
     public imageUpdatesStream() {
         this.createSocket();
 
-        return this.doorImageSubject;
+        if (this.doorImageObservable == null) {
+            this.doorImageObservable = new Observable((subscriber: Subscriber<IStatusChangeImage>) => {
+                console.log(`doorImageObservable subscription`);
+                if (this.initialSocketCreated) {
+                    console.log(`imageUpdatesStream this.initialSocketCreated => updateImagesStatus`);
+                    this.updateImagesStatus();
+                }
+                return this.doorImageSubject.subscribe(subscriber);
+            });
+        }
+
+        return this.doorImageObservable;
     }
 
     public login(username: string, password: string) {
@@ -158,5 +187,13 @@ export class GarageDoorHttpService {
 
     private createConfig() {
         return createAxiosConfig(this.authTokenService.authToken?.access_token);
+    }
+
+    private updateDoorStatus() {
+        from(this.loadStatus()).subscribe((status) => this.doorStatusSubject.next(status));
+    }
+
+    private updateImagesStatus() {
+        from(this.getLatestImage()).subscribe((images) => images.forEach((image) => this.doorImageSubject.next(image)));
     }
 }

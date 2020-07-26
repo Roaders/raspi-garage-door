@@ -5,7 +5,7 @@
     </div>
 
     <div class="align-middle">
-        <button [disabled]="takingPicture" class="btn btn-primary btn-sm mr-2" (click)="takePicture()">Take New Picture</button>
+        <button [disabled]="!canTakeNewPicture" class="btn btn-primary btn-sm mr-2" (click)="takePicture()">Take New Picture</button>
         <span *ngIf="takingPicture" class="spinner-border text-primary mr-2"></span>
     </div>
 
@@ -21,7 +21,7 @@
         <img class="w-100" [src]="getImagePath(update)">
     </div>
 
-    <div class="align-middle">
+    <div *ngIf="canLoadMore" class="align-middle">
         <button [disabled]="allLoaded || loadingMore" class="btn btn-primary btn-sm mr-2" (click)="loadMore()">Load More</button>
         <span *ngIf="loadingMore" class="spinner-border text-primary mr-2"></span>
     </div>

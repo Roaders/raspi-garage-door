@@ -88,7 +88,6 @@ export class GarageDoorComponent implements OnInit {
             (event) => this.onStatus(event),
             (error) => console.log(`GarageDoorComponent ngOnInit: Stream Error: ${error}`),
         );
-        this.loadStatus();
     }
 
     public loadStatus() {

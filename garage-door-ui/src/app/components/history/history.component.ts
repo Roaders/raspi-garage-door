@@ -17,8 +17,6 @@ export class HistoryComponent implements OnInit {
             (image) => this.addImage(image),
             (error) => console.log(`HistoryComponent ngOnInit: Stream Error: ${error}`),
         );
-
-        from(this.service.getLatestImage()).subscribe((images) => this.addImage(...images));
     }
 
     private _error: string | undefined;
@@ -45,10 +43,18 @@ export class HistoryComponent implements OnInit {
         return this._allLoaded;
     }
 
-    private _statusUpdates: IStatusChangeImage[] = [];
+    private _statusUpdates: IStatusChangeImage[] | undefined;
 
-    public get statusUpdates(): IStatusChangeImage[] {
+    public get statusUpdates(): IStatusChangeImage[] | undefined {
         return this._statusUpdates;
+    }
+
+    public get canTakeNewPicture(): boolean {
+        return !this._takingPicture && this._statusUpdates != null;
+    }
+
+    public get canLoadMore(): boolean {
+        return this._statusUpdates != null && this._statusUpdates.length > 0;
     }
 
     public getImagePath(image: IStatusChangeImage) {
@@ -114,9 +120,13 @@ export class HistoryComponent implements OnInit {
     }
 
     public loadMore() {
+        if (this._statusUpdates == null) {
+            return;
+        }
+        const latestImage = this._statusUpdates[this._statusUpdates.length - 1];
         this._loadingMore = true;
         this._error = undefined;
-        from(this.service.getImages(this._statusUpdates[this._statusUpdates.length - 1].timestamp)).subscribe(
+        from(this.service.getImages(latestImage.timestamp)).subscribe(
             (images) => {
                 if (images.length < 5) {
                     this._allLoaded = true;
@@ -132,12 +142,16 @@ export class HistoryComponent implements OnInit {
     }
 
     private addImage(...images: IStatusChangeImage[]) {
+        this._statusUpdates = this._statusUpdates || [];
+
         this._statusUpdates.push(...images.filter((image) => this.imageFilter(image)));
 
         this._statusUpdates = this._statusUpdates.sort((one, two) => two.timestamp - one.timestamp);
     }
 
     private imageFilter(image: IStatusChangeImage) {
-        return this.statusUpdates.every((existingImage) => existingImage.name != image.name);
+        return this.statusUpdates != null
+            ? this.statusUpdates.every((existingImage) => existingImage.name != image.name)
+            : true;
     }
 }

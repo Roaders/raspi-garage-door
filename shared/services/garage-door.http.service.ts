@@ -1,4 +1,3 @@
-import { Injectable } from '@angular/core';
 import { Subject, Observable, from, Subscriber } from 'rxjs';
 import { AuthTokenService } from './auth-token.service';
 import { shareReplay, tap, map, catchError, mergeMap } from 'rxjs/operators';
@@ -8,7 +7,6 @@ import { DOOR_STATUS_UPDATES, DOOR_IMAGE_UPDATES } from '../constants';
 import { SocketFactory } from '../socket-factory';
 import { createAxiosConfig } from '../helpers';
 
-@Injectable()
 export class GarageDoorHttpService {
     private doorStatusSubject = new Subject<IGarageDoorStatus>();
     private doorStatusObservable: Observable<IGarageDoorStatus> | undefined;

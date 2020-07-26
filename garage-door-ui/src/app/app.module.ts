@@ -15,16 +15,20 @@ import { version } from '../../../package.json';
 import { SocketFactory, AuthTokenService, GarageDoorHttpService, BrowserTokenStore } from '../../../shared';
 import { environment } from 'src/environments/environment';
 
+const authTokenService = new AuthTokenService(new BrowserTokenStore());
+
 @NgModule({
     declarations: [AppComponent, LoginComponent, GarageDoorComponent, HistoryComponent],
     imports: [BrowserModule, CommonModule, HttpClientModule, FormsModule, AppRoutingModule, FontAwesomeModule],
     providers: [
-        { provide: SocketFactory, useValue: new SocketFactory(console, environment.updatesUrl) },
-        { provide: 'tokenStore', useValue: new BrowserTokenStore() },
-        AuthTokenService,
+        {
+            provide: GarageDoorHttpService,
+            useFactory: () =>
+                new GarageDoorHttpService(authTokenService, new SocketFactory(console, environment.updatesUrl)),
+        },
+        { provide: AuthTokenService, useValue: authTokenService },
         AuthGuard,
         LoggedInGuard,
-        GarageDoorHttpService,
     ],
     bootstrap: [AppComponent],
 })

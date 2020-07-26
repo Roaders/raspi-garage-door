@@ -1,11 +1,8 @@
-import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { IAuthToken, ITokenStore } from '../contracts';
-import { Inject } from '@angular/core';
 
-@Injectable()
 export class AuthTokenService {
-    constructor(@Inject('tokenStore') private tokenStore: ITokenStore) {}
+    constructor(private tokenStore: ITokenStore) {}
 
     private _tokenStream: Subject<IAuthToken | undefined> = new Subject();
 

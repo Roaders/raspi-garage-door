@@ -10,7 +10,7 @@ To open or close your garage door pass a message to the `garage-door` node. The 
  * `boolean` - `true` will open the door, `false` will close it
  * `string` - pass `OPEN` or `CLOSED`
 
- ## Output
+## Output
 
  Messages will be emitted by the node with the following properties:
 

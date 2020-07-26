@@ -28,21 +28,23 @@ export class SocketFactory {
         }
     }
 
-    public createSocket(token: IAuthToken, tokenFactory: (token: IAuthToken) => Promise<IAuthToken>) {
-        if (this._token?.access_token === token.access_token && this._token.refresh_token === token.refresh_token) {
+    public createSocket(tokenFactory: () => Promise<IAuthToken>, token?: IAuthToken) {
+        if (token == null) {
+            return this.attemptConnection(tokenFactory, true);
+        }
+
+        if (this._token?.access_token === token.access_token && this._token?.refresh_token === token.refresh_token) {
             return;
         }
+        this._token = token;
+
         if (this._socket != null) {
             this._socket.close();
             this.resetReconnection();
         }
 
-        this._token = token;
-
-        const url = `${this.baseUrl}?token=${token.access_token}`;
-
         try {
-            const socket = io(url, { reconnection: false });
+            const socket = io(`${this.baseUrl}?token=${token.access_token}`, { reconnection: false });
             this._socket = socket;
 
             socket.on('connect', () => {
@@ -59,7 +61,7 @@ export class SocketFactory {
             socket.on('disconnect', () => {
                 this.logger.log(`GarageDoorHttpService: disconnect`);
                 this._socket?.close();
-                this.attemptReconnection(token, tokenFactory);
+                this.attemptConnection(tokenFactory);
             });
         } catch (e) {
             this.logger.log(`SocketFactory: Error setting up stream: ${e}`);
@@ -76,23 +78,24 @@ export class SocketFactory {
      * @param baseUrl
      * @param tokenFactory
      */
-    private attemptReconnection(token: IAuthToken, tokenFactory: (token: IAuthToken) => Promise<IAuthToken>) {
-        this.logger.log(`SocketFactory attemptreconnection reconnect timeout: ${this._reconnectTimeout}`);
+    private attemptConnection(tokenFactory: () => Promise<IAuthToken>, immediate = false) {
+        const connectDelay = immediate ? 0 : this._reconnectTimeout;
+        this.logger.log(`SocketFactory attemptConnection delay: ${connectDelay}`);
 
-        this._reconnectSubscription = interval(this._reconnectTimeout)
+        this._reconnectSubscription = interval(connectDelay)
             .pipe(
                 take(1),
-                mergeMap(() => tokenFactory(token)),
+                mergeMap(() => tokenFactory()),
             )
             .subscribe(
                 (refreshedToken) => {
-                    this.logger.log(`GarageDoorHttpService: attempting reconnection`);
-                    this.createSocket(refreshedToken, tokenFactory);
+                    this.logger.log(`GarageDoorHttpService: attempting connection`);
+                    this.createSocket(tokenFactory, refreshedToken);
                 },
                 (error) => {
-                    this.logger.log(`GarageDoorHttpService: reconnection failed: ${printError(error)}`);
+                    this.logger.log(`GarageDoorHttpService: connection failed: ${printError(error)}`);
                     this._reconnectTimeout = Math.min(maxReconnectDelay, this._reconnectTimeout * 2);
-                    this.attemptReconnection(token, tokenFactory);
+                    this.attemptConnection(tokenFactory);
                 },
             );
     }

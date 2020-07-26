@@ -8,7 +8,6 @@ import {
     NodeTokenStore,
 } from '../shared';
 import { from, Observable } from 'rxjs';
-import { mergeMap } from 'rxjs/operators';
 
 export interface IGarageDoorConfigProperties extends NodeProperties {
     port: number;
@@ -48,12 +47,11 @@ module.exports = function (module: Red) {
             socketFactory.close();
         });
 
-        from(httpService.login(this.credentials.username, this.credentials.password))
-            .pipe(mergeMap(() => httpService.loadStatus()))
-            .subscribe(
-                (status) => onStatusChange(this, status),
-                (error) => this.error(`Could not load status: ${error}`),
-            );
+        socketFactory.createSocket(() =>
+            authTokenService.authToken == null
+                ? httpService.login(this.credentials.username, this.credentials.password)
+                : httpService.exchangeToken(),
+        );
     }
 
     module.nodes.registerType('garage-door-config', GarageDoorConfig, {

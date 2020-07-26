@@ -110,9 +110,9 @@ export class GarageDoorHttpService {
         return `${this.baseUrl}/${path}`;
     }
 
-    private exchangeToken(): Observable<IAuthToken> {
+    public exchangeToken(): Promise<IAuthToken> {
         if (this.exchangeTokenStream != null) {
-            return this.exchangeTokenStream;
+            return this.exchangeTokenStream.toPromise();
         }
 
         this.exchangeTokenStream = from(
@@ -132,7 +132,7 @@ export class GarageDoorHttpService {
             shareReplay(1),
         );
 
-        return this.exchangeTokenStream;
+        return this.exchangeTokenStream.toPromise();
     }
 
     private onNewToken() {
@@ -142,7 +142,7 @@ export class GarageDoorHttpService {
     private wrapPromise<T>(promiseFactory: () => Promise<AxiosResponse<T>>) {
         return from(promiseFactory())
             .pipe(
-                catchError(() => this.exchangeToken().pipe(mergeMap(() => promiseFactory()))),
+                catchError(() => from(this.exchangeToken()).pipe(mergeMap(() => promiseFactory()))),
                 map((response) => response.data),
             )
             .toPromise();
@@ -153,7 +153,7 @@ export class GarageDoorHttpService {
             return;
         }
 
-        this.socketFactory.createSocket(this.authTokenService.authToken, () => this.exchangeToken().toPromise());
+        this.socketFactory.createSocket(() => this.exchangeToken(), this.authTokenService.authToken);
     }
 
     private createConfig() {

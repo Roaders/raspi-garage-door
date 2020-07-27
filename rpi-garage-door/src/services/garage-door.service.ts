@@ -69,10 +69,16 @@ export class GarageDoorService {
         let status: IGarageDoorStatus;
         switch (value.status) {
             case 'OPEN':
+                if (this._status?.status === 'OPEN') {
+                    return this._status;
+                }
                 status = { status: 'OPENING' };
                 break;
 
             case 'CLOSED':
+                if (this._status?.status === 'CLOSED') {
+                    return this._status;
+                }
                 status = { status: 'CLOSING' };
                 break;
 

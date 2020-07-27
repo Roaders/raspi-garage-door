@@ -1,6 +1,6 @@
 # RPI Garage Door
 
-![App Opening Door](readmeAssets/appControlOpenFrameRate2.gif)
+![App Opening Door](readmeAssets/appOpen.gif)
 
 ## Install
 

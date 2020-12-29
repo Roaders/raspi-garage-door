@@ -9,3 +9,12 @@ deploy:
     on:
       tags: true
     edge: true
+
+deploy:
+  - provider: npm
+    api_key: $NPM_TOKEN
+    email: giles@roadnight.name
+    src: node-red-contrib-garage-door
+    on:
+      tags: true
+    edge: true

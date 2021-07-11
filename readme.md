@@ -160,11 +160,16 @@ sudo chmod -R a+r /etc/letsencrypt/archive/MY_DOMAIN
 edit deploy hook:
 
 ```bash
-sudo nano /etc/letsencrypt/renewal-hooks/deploy/restart-garage-door.sh
+sudo nano /etc/letsencrypt/renewal/MY_DOMAIN.conf
 ```
 and add the restart command:
 ```
-systemctl restart garage-door
+# Options used in the renewal process
+[renewalparams]
+account = PRE_POPULATED
+authenticator = PRE_POPULATED
+server = PRE_POPULATED
+renew_hook = systemctl restart garage-door
 ```
 
 ### Renew Certificates:

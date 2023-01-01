@@ -19,7 +19,7 @@
         "test:e2e": "jest --config ./test/jest-e2e.json"
     },
     "devDependencies": {
-        "@nestjs/cli": "^7.1.5"
+        "@nestjs/cli": "^9.1.8"
     },
     "jest": {
         "moduleFileExtensions": [
